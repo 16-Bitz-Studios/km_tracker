@@ -96,3 +96,10 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Fuel surcharge choices now include **CAD per truck hour**, in addition to percentage, CAD per actual km and flat CAD per trip. Select it in a client's rate card or override the fuel surcharge for one trip.
 - Hourly surcharge = entered truck hours × hourly surcharge rate, even when truck-hour base billing is disabled. The user's earnings percentage (85% by default) applies to the entire charge.
 - Client summaries and the audit PDF show the owner's portion of hourly fuel surcharges. Existing trips keep their saved pricing selections.
+
+### v0.6 — actual vs billed kilometres and iPhone keypad
+
+- Work trips now have an optional **Billed kilometres** field alongside actual start/end odometer readings; leaving it empty uses actual driven distance, including for existing trips.
+- Per-kilometre client charges use the billed distance, but **per actual km** fuel surcharges continue to use the odometer distance. The 85% earnings share is applied afterward as before.
+- The dashboard shows actual work distance, charged distance, and the difference between billed and driven distance for trips where km billing is enabled. Trip previews, trip list and audit PDF include billed distance/difference as applicable.
+- Odometer, billed kilometres and other numeric fields request the iPhone **decimal number keyboard** rather than the QWERTY keyboard.
