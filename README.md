@@ -84,3 +84,9 @@ Version: **v0.1.0**. No npm install, build tool, paid service or Mac required to
 ### v0.3 — vehicle-only tracking
 
 Labour-hour inputs, labour prices, labour billing, and labour dashboard totals were removed. Work trips still support optional billable **truck hours** and company-specific truck-hour prices. Existing legacy labour fields remain in saved records and JSON backups for audit history but are no longer billed, exported as regular CSV columns, or shown in the app. Historical vehicle-hour totals still fall back to old `hours` values if no truck-hours field existed, to avoid silently changing existing mileage/vehicle revenue.
+
+### v0.4 — personal earnings and PDF audit
+
+- The dashboard, client earnings, and trip previews show only the owner's share of truck charges (default **85%**), applied to kilometre charges, billable truck hours, and fuel surcharges.
+- **Data & backup → Your share of client charges** can change this for new trips. Each trip snapshots the percentage; previously saved trips retain 85% unless their own snapshot says otherwise.
+- **Audit export** is now a multi-page, searchable PDF containing work/personal trips, earnings, expenses, clients, receipt references and the local edit history. The backup ZIP remains for original receipt files and full restoration. Receipt binaries are not part of the PDF.
