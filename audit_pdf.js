@@ -104,7 +104,7 @@ async function makeAuditPDF(){
    const pct=sharePercent()/100;
    let surcharge='None';
    if(c.surcharge_type==='percent')surcharge=c.surcharge_rate+'% of vehicle charges, shared at '+sharePercent()+'%';
-   if(c.surcharge_type==='per_km')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per actual km';
+   if(c.surcharge_type==='per_km')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per actual km';if(c.surcharge_type==='per_hour')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per truck hour';
    if(c.surcharge_type==='flat')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per trip';
    p.entry(c.name,[
      ['Billing basis',c.mode||'-'],['Your equivalent kilometre rate',money(round(number(c.km_rate)*pct))],
