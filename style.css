@@ -116,3 +116,96 @@ body.standalone-editing{background:var(--bg);min-height:100dvh}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+
+/* v1.3 — refined page, entry and save interactions, with iPhone-friendly inputs. */
+/* Direction reflects left/right tab order. The outgoing screen is never blocked. */
+.screen-stage{animation:screen-enter 185ms cubic-bezier(.19,.84,.28,1) both;will-change:auto}
+.screen-stage[data-enter="forward"]{--screen-enter-x:10px}
+.screen-stage[data-enter="backward"]{--screen-enter-x:-10px}
+.screen-stage[data-enter="settle"]{--screen-enter-x:0px}
+@keyframes screen-enter{
+ from{opacity:.66;transform:translate3d(var(--screen-enter-x,0px),4px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* A few first-screen elements settle into place, rather than a long stagger. */
+.screen-stage > .section-heading{animation:section-settle 165ms ease-out both}
+@keyframes section-settle{from{opacity:.8;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.tabbar button{position:relative;transition:background-color 170ms ease,color 170ms ease,transform 130ms ease}
+.tabbar button::after{content:"";position:absolute;height:2px;bottom:1px;left:28%;right:28%;
+ border-radius:6px;background:var(--accent);opacity:0;transform:scaleX(.3);
+ transition:transform 180ms cubic-bezier(.2,.8,.3,1),opacity 150ms ease}
+.tabbar button.active::after{opacity:.85;transform:scaleX(1)}
+/* The form itself stays in normal document flow. Only text/header opacity animates;
+   no translated input parent, focus hacks or touch interception on standalone iOS. */
+#editor-page .editor-page-head{animation:editor-heading-in 165ms ease-out both}
+#editor-page #editor-page-content{animation:editor-content-in 170ms ease-out both}
+@keyframes editor-heading-in{from{opacity:.55}to{opacity:1}}
+@keyframes editor-content-in{from{opacity:.6}to{opacity:1}}
+dialog[open] .dialog-wrap{animation:sheet-arrive 175ms cubic-bezier(.2,.8,.25,1) both}
+@keyframes sheet-arrive{from{opacity:.65;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.form-field label{transition:color 145ms ease}
+.form-field:focus-within label{color:#8af4dc}
+.form-field input:not([type=checkbox]),.form-field select,.form-field textarea{
+ caret-color:var(--accent);transition:border-color 130ms ease,box-shadow 150ms ease,background-color 150ms ease;
+}
+.form-field input:not([type=checkbox]):focus,.form-field select:focus,.form-field textarea:focus{
+ border-color:#60dac4;background:#1a3443;box-shadow:0 0 0 3px #4cdcc41a;
+ outline:0;
+}
+.form-field input[type=number]{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.checkrow{transition:border-color 140ms ease,background-color 140ms ease}
+.checkrow:focus-within{border-color:#4cab9b;background:#213c46}
+.checkrow:has(input:checked){border-color:#346b62;background:#1a3d3d}
+.odometer-live.full{grid-column:1/-1}
+.odometer-live{display:flex;align-items:center;gap:11px;min-height:67px;padding:12px 13px;
+ margin:-1px 0 12px;border:1px solid #35566a;border-radius:14px;
+ background:linear-gradient(130deg,#193241,#142b3b);
+ transition:background-color 170ms ease,border-color 170ms ease,box-shadow 170ms ease;
+}
+.odometer-live-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:10px;
+ background:#274650;color:#a0d8db;font-size:19px;font-weight:780}
+.odometer-live-copy{flex:1;min-width:0;display:grid;gap:4px}
+.odometer-live-label{font-size:9px;font-weight:830;letter-spacing:1.1px;color:#93b6c6}
+.odometer-live-detail{font-size:11px;color:#abc2cd;line-height:1.35}
+.odometer-live-value{font-size:21px;letter-spacing:-.5px;font-weight:850;
+ color:#dae9f1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.odometer-live.is-ready{border-color:#468c7b;box-shadow:inset 0 1px 0 #92f2d00f;background:linear-gradient(130deg,#18433e,#183c41)}
+.odometer-live.is-ready .odometer-live-icon{background:#285c51;color:#affae8}
+.odometer-live.is-ready .odometer-live-value{color:#67e7cf}
+.odometer-live.is-invalid{border-color:#af7067;background:#342a32}
+.odometer-live.is-invalid .odometer-live-value{color:#ff9d97;font-size:17px}
+.odometer-live.just-ready .odometer-live-value{animation:odometer-settle 200ms cubic-bezier(.2,.8,.25,1) both}
+@keyframes odometer-settle{
+ from{opacity:.55;transform:translateY(3px)}
+ to{opacity:1;transform:translateY(0)}
+}
+.previewbox{transition:border-color 150ms ease,box-shadow 150ms ease}
+#trip-preview .total{font-variant-numeric:tabular-nums}
+.foot-actions .btn[type=submit]{position:relative;min-height:46px}
+.foot-actions .btn[type=submit]:disabled{opacity:.78;cursor:progress}
+.foot-actions .btn[type=submit]:disabled::after{
+ content:"";display:inline-block;vertical-align:-2px;margin-left:9px;width:12px;height:12px;
+ border:2px solid currentColor;border-right-color:transparent;border-radius:50%;
+ animation:save-spinner 650ms linear infinite
+}
+@keyframes save-spinner{to{transform:rotate(360deg)}}
+#toast{padding:12px 17px;border:1px solid #d8fff3;
+ box-shadow:0 12px 35px #020c145c,0 3px 0 #1e6c5a24;
+ transition:opacity 170ms ease,transform 210ms cubic-bezier(.18,.84,.3,1)}
+.btn:focus-visible,.chip:focus-visible,.tabbar button:focus-visible,.editor-back:focus-visible{
+ outline:2px solid var(--accent);outline-offset:3px;
+}
+@media(max-width:365px){
+ .odometer-live{gap:7px;padding:10px}
+ .odometer-live-icon{width:27px;height:27px}
+ .odometer-live-value{font-size:18px}
+ .odometer-live-detail{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .screen-stage,.screen-stage>.section-heading,#editor-page .editor-page-head,
+ #editor-page #editor-page-content,dialog[open] .dialog-wrap,
+ .odometer-live.just-ready .odometer-live-value,.foot-actions .btn[type=submit]:disabled::after{
+ animation:none!important;
+ }
+}
