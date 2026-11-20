@@ -184,3 +184,11 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The first-run tutorial now includes **Save TruckLedger to your Home Screen** immediately after the welcome screen. It explains installing from iPhone/iPad **Safari → Share (or Page Menu → Share) → Add to Home Screen → Open as Web App (if offered) → Add**, and Android **Chrome → ⋮ → Install and create shortcut / Install app / Add to Home screen → Install** (labels can vary by browser version).
 - The guide warns against deleting an existing installation that contains unbacked-up records, since an installed Home Screen app can have separate local storage from the browser.
 - This is an instructional step, not an automatic installation button. The guide is now 11 screens and remains first-launch-only on new installations, with a View Tutorial option in Data & backup. It does not alter mileage logs, expenses, clients, receipts, or cloud backups.
+
+### v1.7 — refined offline-first everyday experience
+
+- Trips has an instant **Search** field for client, destination, notes, date and odometer. Filters work on both manually recorded and automatically inferred personal trips. The matching trip count and kilometre total update without rerendering the screen or dismissing the iPhone keyboard.
+- Overview now offers a prominent **Finish** shortcut for the newest unfinished work trip, opening the existing saved trip directly. Trips and earnings calculations are unchanged.
+- The optional `polish.js` module adds tiny tactile clicks where the browser supports `navigator.vibrate` (generally Android) and short save-confirmation feedback. Unsupported platforms silently keep the normal visual feedback; Reduce Motion disables haptics.
+- When a new service worker takes over an already controlled page, a small **Update ready** notice offers Refresh or Dismiss. Refresh is blocked while editing a record or reading the tutorial, preventing accidental loss of unsaved entry data. There is no forced reload. Navigation, offline storage and backups continue working if `polish.js` fails to load.
+- Shell cache v23 precaches the new optional script and updated app/styles for offline Home Screen use. No database schema changes or migrations.
