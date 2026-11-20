@@ -34,6 +34,15 @@
     </nav>
   </div>
 
+  <!-- Standalone iOS editor: normal document flow avoids native dialog focus bugs. -->
+  <section id="editor-page" hidden aria-label="Edit record">
+    <div class="editor-page-head">
+      <button type="button" id="close-editor-page" class="editor-back" aria-label="Back without saving">‹ Back</button>
+      <div id="editor-page-heading" class="editor-page-title"></div>
+    </div>
+    <div id="editor-page-content"></div>
+  </section>
+
   <dialog id="editor" aria-label="Edit record">
     <div class="dialog-wrap">
       <div class="dialog-top"><div id="dialog-heading" class="dialog-title"></div><button type="button" id="close-dialog" class="icon-button" aria-label="Close">✕</button></div>
