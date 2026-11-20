@@ -181,6 +181,8 @@ function openDialog(title,html){
   const page=$('#editor-page');
   editorReturnScroll=window.scrollY||0;
   $('#editor-page-heading').textContent=title;
+  // Presentation-only marker; keeps the normal document-flow iPhone form and keyboard.
+  page.dataset.formKind=html.match(/<form\s+id="([^"]+)"/)?.[1]||'other';
   $('#editor-page-content').innerHTML=html;
   page.hidden=false;
   document.body.classList.add('standalone-editing');
@@ -190,6 +192,7 @@ function openDialog(title,html){
  $('#dialog-heading').textContent=title;
  $('#dialog-content').innerHTML=html;
  const el=$('#editor');
+ el.dataset.formKind=html.match(/<form\s+id="([^"]+)"/)?.[1]||'other';
  if(!el.open)el.showModal();
 }
 function closeDialog(){
