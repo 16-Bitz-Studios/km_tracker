@@ -87,7 +87,7 @@ const CLOUD=(()=>{
     const url='https://www.googleapis.com/drive/v3/files?'+new URLSearchParams({
       spaces:'appDataFolder',q:"name contains '"+PREFIX+"' and trashed = false",
       fields:'nextPageToken,files(id,name,size,createdTime,modifiedTime)',
-      orderBy:'createdTime desc',page_size:'100'
+      orderBy:'createdTime desc',pageSize:'100'
     });
     const result=await (await googleFetch(url)).json();
     backups=(result.files||[]).filter(f=>f.name.startsWith(PREFIX)&&f.name.endsWith('.zip'));
