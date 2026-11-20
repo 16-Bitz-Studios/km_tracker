@@ -123,3 +123,9 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Overview now prioritizes the owner's earned revenue, recorded expenses and operating profit, with a breakdown of earnings by kilometres, vehicle hours and fuel surcharges. It shows actual, personal, billed and additional billed km, recent trips and client activity.
 - Lifetime purchase recovery moved entirely off the Overview and into a sixth bottom-navigation **Invest** tab, which shows purchase cost, operating profit, net after purchase and investment return. Data remains the place to edit opening YTD and purchase price.
 - All client records, earnings calculations, local backups and the PDF audit format are preserved.
+
+### v1.0 — iPhone Home Screen keyboard compatibility
+
+- On iPhones running TruckLedger from the Home Screen, work-trip, personal-trip, client and expense forms now open as normal in-page editors instead of native modal `<dialog>` popups. This avoids a potential iOS standalone web-app keyboard/focus problem. The Safari and desktop versions retain their native dialog layout.
+- Numeric odometer, billed-distance and amount fields continue requesting the iPhone decimal keypad. No data is migrated, deleted or reset by this update.
+- If an installed app has a system-level keyboard issue, opening the site in Safari can help diagnose it. **Do not delete the installed app without exporting its backup first**, because Safari and Home Screen app data may be separate.
