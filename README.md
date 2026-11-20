@@ -209,3 +209,11 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Page transitions: **440 ms**, dashboard/investment card reveals: **590 ms**, bar-graph growth: **720 ms**, mix bar reveals: **660 ms**, financial counters: **590 ms**. These are CSS or requestAnimationFrame effects; the new page is rendered immediately, with no artificial delay to tapping or typing.
 - The full-page Home Screen editor and native iOS keypad are unchanged. Reduce Motion still disables decorative animations. No changes to IndexedDB, Google Drive backup, receipts, client rates or mileage calculations.
 - Offline cache v25 includes the updated CSS, splash controller and motion module, with coherent versioned HTML script references. No Home Screen uninstall or storage clearing is needed to get the update.
+
+### v2.0 — deliberate ~1-second entry-card rise and unified motion
+
+- Adding/editing a trip now opens with a **1.1-second floating-up card** rather than the previous 340 ms fade. Other full-page editor forms use a 1-second rise, and Safari/desktop modal sheets move as one coherent panel rather than layering nested animations.
+- Existing installed-iPhone keyboard reliability remains first priority: the full-page editor stays in normal document flow, native decimal keyboards remain untouched, and focusing an input immediately cancels the panel's transform animation. Users can interact immediately; animations never delay opening or saving.
+- Tab navigation is a consistent **680 ms** directional slide. A switch of the reporting range no longer moves the *whole* screen; the overview earnings hero and trend chart provide the deliberate focal motion. Bars grow over **1,050 ms**, earnings counters transition over **780 ms**, and secondary dashboard cards don't all animate independently.
+- No animation libraries, no record schema changes, no changes to earnings, personal kilometres, receipts or Google Drive backup. Reduce Motion continues to turn off nonessential motion.
+- Offline shell v26 precaches versioned app, style and motion modules. Old installed Home Screen data is preserved, and an uninstall is never needed.
