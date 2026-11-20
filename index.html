@@ -12,28 +12,41 @@
   <link rel="icon" type="image/svg+xml" href="./icon.svg?v=24">
   <link rel="apple-touch-icon" sizes="192x192" href="./apple-touch-icon.png?v=24">
   <!-- Display the launch branding on the first paint, even before full CSS arrives. -->
-  <link rel="preload" as="image" type="image/webp" href="./splash.webp?v=24" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" href="./splash-logo-poster.webp?v=27" fetchpriority="high">
   <style>
     #launch-splash[hidden]{display:none!important}
     #launch-splash{position:fixed;inset:0;z-index:9997;pointer-events:none;overflow:hidden;
-      background:#06182c;color:#f1ffff;opacity:1}
-    #launch-splash .launch-fallback{position:absolute;inset:0;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:13px;text-align:center;padding:20px}
-    #launch-splash .launch-fallback img{width:110px;height:110px;border-radius:27px}
-    #launch-splash .launch-fallback strong{font:800 30px/1.1 system-ui,sans-serif;letter-spacing:-1px}
-    #launch-splash .launch-fallback span{font:500 13px/1.4 system-ui,sans-serif;color:#c6e8eb}
-    #launch-splash .launch-art{display:block;position:absolute;inset:0;width:100%;height:100%;
-      object-fit:cover}
+      display:flex;justify-content:center;align-items:center;color:#f1ffff;opacity:1;
+      background:radial-gradient(ellipse at 10% -10%,#078e97 0%,#06334f 28%,transparent 63%),#06172d}
+    #launch-splash .launch-content{width:100%;display:flex;align-items:center;
+      justify-content:center;flex-direction:column;padding:20px;gap:15px;position:relative}
+    #launch-splash .launch-logo-frame{width:min(74vw,340px);aspect-ratio:512/530;
+      position:relative;border-radius:28px;overflow:hidden;background:#071f37}
+    #launch-splash .launch-logo-frame img,#launch-splash .launch-logo-frame video{
+      display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    #launch-splash .launch-video{opacity:0}
+    #launch-splash.is-video-playing .launch-video{opacity:1}
+    #launch-splash .launch-wordmark{font:800 clamp(30px,8.5vw,45px)/1.12 system-ui,sans-serif;letter-spacing:-1.4px}
+    #launch-splash .launch-slogan{font:500 13px/1.55 system-ui,sans-serif;color:#c9e2e4;text-align:center;margin:0}
     #launch-splash.is-exiting{opacity:0}
   </style>
-  <link rel="stylesheet" href="./style.css?v=26">
+  <link rel="stylesheet" href="./style.css?v=27">
   <title>TruckLedger</title>
 </head>
 <body>
-  <!-- Fast, nonblocking in-app splash (not an iOS system startup screen). -->
+  <!-- The actual animated user-supplied logo video, cropped to the emblem. -->
   <section id="launch-splash" aria-hidden="true">
-    <div class="launch-fallback"><img src="./icon.svg?v=24" alt="" width="112" height="112"><strong>TruckLedger</strong><span>Track every kilometre. Know every dollar.</span></div>
-    <img class="launch-art" src="./splash.webp?v=24" alt="" width="390" height="693" fetchpriority="high">
+    <div class="launch-content">
+      <div class="launch-logo-frame">
+        <img class="launch-poster" src="./splash-logo-poster.webp?v=27" width="512" height="530" alt="">
+        <video class="launch-video" autoplay muted playsinline webkit-playsinline loop preload="auto" disablepictureinpicture poster="./splash-logo-poster.webp?v=27" width="512" height="530" aria-hidden="true">
+          <source src="./splash-logo.mp4?v=27" type="video/mp4">
+        </video>
+      </div>
+      <div class="launch-wordmark">TruckLedger</div>
+      <span class="launch-stripe" aria-hidden="true"></span>
+      <p class="launch-slogan">Track every kilometre. Know every dollar.</p>
+    </div>
     <div class="launch-status"><span>LOADING YOUR LEDGER</span><i></i></div>
   </section>
   <div class="app">
@@ -90,7 +103,7 @@
   <script src="./auto_personal.js?v=18" defer></script>
   <script src="./tutorial.js?v=24" defer></script>
   <script src="./polish.js?v=23" defer></script>
-  <script src="./splash.js?v=25" defer></script>
+  <script src="./splash.js?v=27" defer></script>
   <script src="./app.js?v=26" defer></script>
 </body>
 </html>
