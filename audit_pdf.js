@@ -96,7 +96,7 @@ async function makeAuditPDF(){
    ['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],['Actual distance',dist(c.km)],['Billed kilometres',t.bill_km?(c.billedKm===null?'Pending end odometer':dist(c.billedKm)):'Not billed'],['Difference (billed - actual)',t.bill_km&&c.km!==null?(c.billedKm-c.km>=0?'+':'')+dist(round(c.billedKm-c.km)):'Not applicable'],
    ['Truck hours recorded',t.bill_truck_hours||(t.bill_surcharge&&t.rate?.surcharge_type==='per_hour')?String(t.truck_hours||t.hours||0)+' hr':'Not used for hourly charges'],
    ['Counting toward total',FINANCES.covered(t)?'Included in opening YTD; not added a second time':'Counted as an individual trip'],['Your earnings percentage',tripSharePercent(t)+'%'],['Your kilometre earnings',money(c.kmCharge)],
-   ['Your truck-hour earnings',money(c.truckCharge)],['Your fuel-surcharge earnings',money(c.surcharge)],
+   ['Your truck-hour earnings',money(c.truckCharge)],['Fuel surcharge method',t.bill_surcharge?surchargeLabel(t.rate?.surcharge_type):'Not charged'],['Saved fuel surcharge rate',t.bill_surcharge?surchargeRateDescription(t.rate?.surcharge_type,number(t.rate?.surcharge_rate)):'Not applicable'],['Your fuel-surcharge earnings',money(c.surcharge)],
    ['YOUR TOTAL EARNINGS',money(c.truckRevenue)],['Notes',t.notes||'-'],['Record ID',t.id]
  ]);});
  p.section('Personal trips - complete odometer log');
@@ -118,14 +118,16 @@ async function makeAuditPDF(){
  if(!state.companies.length)p.text('No companies recorded.');
  state.companies.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(c=>{
    const pct=sharePercent()/100;
-   let surcharge='None';
-   if(c.surcharge_type==='percent')surcharge=c.surcharge_rate+'% of vehicle charges, shared at '+sharePercent()+'%';
-   if(c.surcharge_type==='per_km')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per actual km';if(c.surcharge_type==='per_hour')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per truck hour';
-   if(c.surcharge_type==='flat')surcharge=money(round(number(c.surcharge_rate)*pct))+' earned per trip';
+   const methods=companySurchargeOptions(c);
+   const surcharge=methods.length?methods.map(o=>
+    surchargeLabel(o.type)+': '+(o.type==='percent'?number(o.rate)+'% client charge-out':
+     surchargeRateDescription(o.type,round(number(o.rate)*pct))+' owner equivalent')
+   ).join(' ; '):'None';
+   const preferred=clientDefaultSurcharge(c).type;
    p.entry(c.name,[
      ['Billing basis',c.mode||'-'],['Your equivalent kilometre rate',money(round(number(c.km_rate)*pct))],
      ['Your equivalent truck-hour rate',money(round(number(c.truck_hour_rate)*pct))],
-     ['Fuel surcharge',surcharge],['Notes',c.notes||'-']
+     ['Available fuel surcharge methods',surcharge],['Default new-trip method',surchargeLabel(preferred)],['Notes',c.notes||'-']
    ]);
  });
  p.section('Receipt file index');
