@@ -101,8 +101,41 @@ function pageData(){return `<div class="section-heading"><div><div class="eyebro
  <div class="card"><strong>What is saved here?</strong><div class="datum"><span>Trip records</span><span>${state.trips.length}</span></div><div class="datum"><span>Clients</span><span>${state.companies.length}</span></div><div class="datum"><span>Vehicle expenses</span><span>${state.expenses.length}</span></div><div class="datum"><span>Receipt files</span><span>${state.receipts.length}</span></div><div class="datum"><span>Local edit-history events</span><span>${state.audit.length}</span></div><div class="notice warning">Your active records are stored locally on this device. Google Drive backup is optional and is only uploaded when you explicitly choose it. GitHub hosts the app code, not your records. iOS may remove local data if storage is cleared or the app is removed. Keep a separate backup ZIP. There is no automatic cloud synchronization.</div></div>`;}
 function render(){const content=$('#content');if(!content)return;const map={dashboard:pageDashboard,trips:pageTrips,expenses:pageExpenses,companies:pageCompanies,investment:pageInvestment,data:pageData};content.innerHTML=(map[state.tab]||pageDashboard)();document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===state.tab));$('#offline-pill').textContent=navigator.onLine?'On-device':'Offline ready';}
 function switchTab(tab){state.tab=tab;render();window.scrollTo(0,0)}
-function openDialog(title,html){$('#dialog-heading').textContent=title;$('#dialog-content').innerHTML=html;const el=$('#editor');if(!el.open)el.showModal();}
-function closeDialog(){const el=$('#editor');if(el.open)el.close();}
+let editorReturnScroll=0;
+function useInlineEditor(){
+ // On iOS installed web apps, the native <dialog> modal can interfere with touch-to-focus.
+ // Use a regular page-flow form instead, keeping native dialog for Safari/desktop.
+ return /iPad|iPhone|iPod/i.test(navigator.userAgent)&&
+   (navigator.standalone===true||Boolean(window.matchMedia?.('(display-mode: standalone)').matches));
+}
+function openDialog(title,html){
+ if(useInlineEditor()){
+  const page=$('#editor-page');
+  editorReturnScroll=window.scrollY||0;
+  $('#editor-page-heading').textContent=title;
+  $('#editor-page-content').innerHTML=html;
+  page.hidden=false;
+  document.body.classList.add('standalone-editing');
+  window.scrollTo(0,0);
+  return;
+ }
+ $('#dialog-heading').textContent=title;
+ $('#dialog-content').innerHTML=html;
+ const el=$('#editor');
+ if(!el.open)el.showModal();
+}
+function closeDialog(){
+ const page=$('#editor-page');
+ if(page&&!page.hidden){
+  // The record is persisted by its own Save action before this call.
+  page.hidden=true;
+  document.body.classList.remove('standalone-editing');
+  $('#editor-page-content').replaceChildren();
+  window.scrollTo(0,editorReturnScroll);
+  return;
+ }
+ const el=$('#editor');if(el.open)el.close();
+}
 const field=(label,name,value='',opts={})=>`<div class="form-field ${opts.full?'full':''}"><label for="f-${name}">${label}</label><input id="f-${name}" type="${opts.type||'text'}" name="${name}" ${opts.type==='number'?'inputmode="decimal" autocomplete="off"':''} ${opts.step?`step="${opts.step}"`:''} ${opts.min!==undefined?`min="${opts.min}"`:''} ${opts.max!==undefined?`max="${opts.max}"`:''} ${opts.required?'required':''} ${opts.placeholder?`placeholder="${esc(opts.placeholder)}"`:''} value="${esc(value??'')}"></div>`;
 const selectField=(label,name,options,value='',full=false)=>`<div class="form-field ${full?'full':''}"><label for="f-${name}">${label}</label><select id="f-${name}" name="${name}">${options.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(t)}</option>`).join('')}</select></div>`;
 const textArea=(label,name,value)=>`<div class="form-field full"><label for="f-${name}">${label}</label><textarea id="f-${name}" name="${name}" rows="2">${esc(value||'')}</textarea></div>`;
@@ -179,7 +212,7 @@ async function routeClick(e){const btn=e.target.closest('button');if(!btn)return
  if(btn.dataset.editTrip){openTrip(null,btn.dataset.editTrip);return;}if(btn.dataset.editExpense){openExpense(btn.dataset.editExpense);return;}if(btn.dataset.editCompany){openCompany(btn.dataset.editCompany);return;}
  if(btn.dataset.deleteTrip){await deleteRecord('trips',btn.dataset.deleteTrip);return;}if(btn.dataset.deleteExpense){await deleteRecord('expenses',btn.dataset.deleteExpense);return;}if(btn.dataset.deleteCompany){await deleteRecord('companies',btn.dataset.deleteCompany);return;}
  if(btn.dataset.viewReceipt){await showReceipt(btn.dataset.viewReceipt);return;}if(btn.dataset.removeReceipt){if(confirm('Remove this receipt from the expense? The change is saved when you save the expense.')){$('#expense-form').dataset.removeReceipt='1';$('#receipt-status').textContent='Receipt will be removed when you save this expense.';btn.closest('.actions').remove();}return;}
- if(btn.dataset.export){await exportData(btn.dataset.export);return;}if(btn.id==='restore-btn'){const input=$('#restore-input');try{await restoreBackup(input?.files?.[0]);}catch(err){alert('Restore failed: '+err.message)}return;}if(btn.id==='close-dialog'){closeDialog();return;}
+ if(btn.dataset.export){await exportData(btn.dataset.export);return;}if(btn.id==='restore-btn'){const input=$('#restore-input');try{await restoreBackup(input?.files?.[0]);}catch(err){alert('Restore failed: '+err.message)}return;}if(btn.id==='close-dialog'||btn.id==='close-editor-page'){closeDialog();return;}
  }catch(err){alert(err.message||'Something went wrong');console.error(err);}}
 async function routeSubmit(event){const f=event.target;if(!['company-form','trip-form','expense-form','settings-form'].includes(f.id))return;event.preventDefault();const submit=f.querySelector('[type="submit"]');if(submit)submit.disabled=true;try{if(f.id==='company-form')await saveCompany(f);else if(f.id==='trip-form')await saveTrip(f);else if(f.id==='expense-form')await saveExpense(f);else if(f.id==='settings-form'){const value=parsePositive(f.elements.share_percent.value,'Earnings share');if(value>100)throw new Error('Earnings share cannot be above 100%');const purchase=f.elements.purchase_price.value===''?'':parsePositive(f.elements.purchase_price.value,'Truck purchase price');const old=state.settings.find(x=>x.id==='vehicle_name');await writeWithAudit('settings',{id:'vehicle_name',value:f.elements.vehicle_name.value.trim()},old);const priorPurchase=state.settings.find(x=>x.id==='vehicle_purchase_price');await writeWithAudit('settings',{id:'vehicle_purchase_price',value:purchase},priorPurchase);const oldShare=state.settings.find(x=>x.id==='share_percent');await writeWithAudit('settings',{id:'share_percent',value},oldShare);await refresh();toast('Vehicle settings saved — new trips use your share');}}catch(e){alert(e.message||'Save failed');console.error(e)}finally{if(submit?.isConnected)submit.disabled=false;}}
 function routeInput(e){if(e.target.closest('#trip-form')){const f=$('#trip-form');if(e.target.name==='client_id'){applyCompanyToTrip(f);}else updateTripPreview();}if(e.target.id==='receipt-file'){const file=e.target.files?.[0];$('#receipt-status').textContent=file?`${file.name} (${(file.size/1024/1024).toFixed(2)} MB) ready to save`:'No new receipt selected';}}
