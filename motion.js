@@ -17,7 +17,7 @@ const MOTION=(()=>{
   const tabs=['dashboard','trips','expenses','companies','investment','data'];
   const from=tabs.indexOf(previousTab),to=tabs.indexOf(tab);
   const direction=from<0||to<0||from===to?'settle':to>from?'forward':'backward';
-  container.innerHTML='<div class="screen-stage" data-enter="'+direction+'">'+markup+'</div>';
+  container.innerHTML='<div class="screen-stage" data-enter="'+direction+'" data-view="'+(tabs.includes(tab)?tab:'dashboard')+'">'+markup+'</div>';
   previousTab=tab;
   if(reduce()||document.hidden||!window.requestAnimationFrame)return;
   const animations=[];
@@ -31,7 +31,7 @@ const MOTION=(()=>{
   let first=null;
   const step=time=>{
    if(first===null)first=time;
-   const progress=Math.min(1,(time-first)/290);
+   const progress=Math.min(1,(time-first)/380);
    const eased=1-Math.pow(1-progress,3);
    for(const item of animations){
     if(item.node.isConnected)item.node.textContent=currency.format(item.start+(item.end-item.start)*eased);
