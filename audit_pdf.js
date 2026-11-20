@@ -59,25 +59,25 @@ async function makeAuditPDF(){
  const costs=round(expenses.reduce((n,e)=>n+number(e.amount),0));
  const fuel=round(expenses.filter(e=>e.category==='Fuel').reduce((n,e)=>n+number(e.amount),0));
  const vehicle=state.settings.find(s=>s.id==='vehicle_name')?.value||'Not specified';
- const workKm=work.reduce((n,t)=>n+(tripDistance(t)||0),0),personalKm=personal.reduce((n,t)=>n+(tripDistance(t)||0),0);
+ const workKm=work.reduce((n,t)=>n+(tripDistance(t)||0),0),personalKm=personal.reduce((n,t)=>n+(tripDistance(t)||0),0);const billedKm=work.reduce((n,t)=>n+(billedDistance(t)||0),0),actualKmForBilled=work.reduce((n,t)=>n+(t.bill_km?(tripDistance(t)||0):0),0);
  p.text('COMPLETE MILEAGE AND VEHICLE COST REPORT',{bold:true,size:14,leading:21});
  p.text('Generated: '+new Date().toLocaleString('en-CA'));
  p.text('Vehicle: '+vehicle+'  |  All recorded dates  |  CAD / km');
  p.section('Summary - your earnings only');
  p.entry('Vehicle earnings and expenses',[
-   ['Completed work distance',dist(workKm)],['Completed personal distance',dist(personalKm)],
+   ['Completed work distance (actual)',dist(workKm)],['Completed personal distance',dist(personalKm)],['Kilometres billed to clients',dist(billedKm)],['Actual km on billed trips',dist(actualKmForBilled)],['Extra billed kilometres',(billedKm-actualKmForBilled>=0?'+':'')+dist(round(billedKm-actualKmForBilled))],
    ['Your truck earnings',money(earn)],['Fuel costs',money(fuel)],
    ['Other vehicle costs',money(round(costs-fuel))],['Total vehicle costs',money(costs)],
    ['YOUR VEHICLE PROFIT',money(round(earn-costs))]
  ]);
  p.text('Earnings are the vehicle owner share of kilometre charges, truck-hour charges and fuel surcharges. The default share is 85%; each trip retains its own recorded percentage. The employer share is excluded.',{size:8.5});
- p.text('Vehicle profit = your earnings less all logged costs, including personal-use costs. Values are estimates based on the recorded entries.',{size:8.5});
+ p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Vehicle profit = your earnings less all logged costs, including personal-use costs. Values are estimates based on the recorded entries.',{size:8.5});
  p.text('Included: '+work.length+' work trips, '+personal.length+' personal trips, '+expenses.length+' expenses, '+state.receipts.length+' receipt references and '+changes.length+' change-history events.',{size:8.5});
  p.section('Work trips - complete odometer and earnings log');
  if(!work.length)p.text('No work trips recorded.');
  work.forEach((t,i)=>{const c=calculate(t);p.entry((i+1)+'. '+(t.date||'Undated')+' | '+companyName(t),[
    ['Location',t.destination||'-'],['Work performed',t.purpose||'-'],
-   ['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],['Distance',dist(c.km)],
+   ['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],['Actual distance',dist(c.km)],['Billed kilometres',t.bill_km?(c.billedKm===null?'Pending end odometer':dist(c.billedKm)):'Not billed'],['Difference (billed - actual)',t.bill_km&&c.km!==null?(c.billedKm-c.km>=0?'+':'')+dist(round(c.billedKm-c.km)):'Not applicable'],
    ['Truck hours recorded',t.bill_truck_hours||(t.bill_surcharge&&t.rate?.surcharge_type==='per_hour')?String(t.truck_hours||t.hours||0)+' hr':'Not used for hourly charges'],
    ['Your earnings percentage',tripSharePercent(t)+'%'],['Your kilometre earnings',money(c.kmCharge)],
    ['Your truck-hour earnings',money(c.truckCharge)],['Your fuel-surcharge earnings',money(c.surcharge)],
