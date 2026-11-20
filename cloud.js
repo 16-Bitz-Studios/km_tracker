@@ -15,7 +15,14 @@ const CLOUD=(()=>{
   const ready=()=>configured()&&authorized();
   const html=s=>esc(s);
   const time=s=>s?new Date(s).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'}):'Unknown date';
-  const apiError=async r=>{let message;try{const d=await r.json();message=d.error?.message||d.error_description;}catch{}return new Error(message||'Google Drive request failed ('+r.status+')');};
+  const apiError=async r=>{
+    let message='',status='';
+    try{const d=await r.json();message=d.error?.message||d.error_description||'';status=d.error?.status||d.error?.errors?.[0]?.reason||'';}catch{}
+    if(r.status===403&&(/has not been used.*before|drive api.*disabled|it is disabled/i.test(message)||/SERVICE_DISABLED|accessNotConfigured/i.test(status))){
+      return new Error('Google Drive API has not been enabled for the TruckLedger Google Cloud project (187913587103). Open Google Cloud Console → APIs & Services → Google Drive API → Enable. Then reconnect here. No backup was uploaded.');
+    }
+    return new Error(message||'Google Drive request failed ('+r.status+')');
+  };
   function panel(){
     const notice=!configured()?'Google connection requires a one-time Google Cloud OAuth setup by the app developer. Until then, local backups continue working.':
       ready()?'Connected for this session — you can back up or restore.':
@@ -72,10 +79,20 @@ const CLOUD=(()=>{
       if(email&&email!==chosen){
         throw new Error('This device is linked to '+email+'. Unlink that account first, then connect '+chosen+'. Local records will remain on this device.');
       }
+      // Authorizing an email does not guarantee the Drive API is enabled.
+      // Confirm actual Drive access *before* reporting a successful cloud link.
+      const oldToken=token,oldExpiry=expires,oldEmail=email,oldBackups=backups;
       token=tempToken;expires=Date.now()+Math.max(0,Number(result.expires_in||3600)-60)*1000;
-      email=chosen;storeEmail(email);
-      backups=[];toast('Google account linked: '+email);
-      await listCore();
+      backups=[];
+      try{
+        await listCore();
+      }catch(e){
+        token=oldToken;expires=oldExpiry;email=oldEmail;backups=oldBackups;
+        update();
+        throw e;
+      }
+      email=chosen;storeEmail(email);update();
+      toast('Google Drive access verified: '+email);
     }catch(e){alert('Google linking: '+e.message);}
     finally{setBusy(false);}
   }
