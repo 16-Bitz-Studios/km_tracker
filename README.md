@@ -51,6 +51,16 @@ The ZIPs intentionally use the standard uncompressed ZIP format (`STORE`) to all
 - Fuel surcharge percentage is applied to billed **vehicle** charges only, not labour. Per-km fuel surcharge is based on actual recorded work kilometres; it may apply to hourly-only clients if enabled.
 - These figures exclude GST/PST and are planning/audit aids, not issued invoices.
 
+## Optional Google Drive backups (v0.2 integration)
+
+- **Data → Google Drive cloud backup** includes Link Google Account, Reconnect, Unlink, Back up to Google Drive, Find backups, and Restore selected backup.
+- Each person authorizes their own Google account. The app uses the narrow, non-sensitive `drive.appdata` scope so it can only store or access its own private backup files in that user's hidden Google Drive application data folder. It also requests email permission to show which account is connected and prevent accidentally switching accounts on a device.
+- The first deployment requires the app developer to create a Google Cloud project, enable **Google Drive API**, set up an OAuth consent screen (**External**, with test users added while in Testing), and create an OAuth 2.0 **Web application** client with the Authorized JavaScript origin `https://16-bitz-studios.github.io`. Set `GOOGLE_CLIENT_ID` (a public identifier, never a client secret) in `cloud.js`.
+- Until a valid Client ID is configured, the cloud section displays **SETUP NEEDED** and remains inactive. This is intentional and does not affect local logging or ZIP exports.
+- The access token is held in memory only; the associated email is saved locally for convenience. Reconnect each browser session to authorize Google operations. On iOS, if Google popup authorization is blocked from a Home Screen app, open the same website in Safari (note Safari and installed PWA may not share the same local records).
+- This is **manual cloud backup and restore**, **not live sync**. Cloud restore explicitly replaces current local records with a confirmation prompt. Cloud files are not directly visible in regular Google Drive browsing; keep manual ZIP exports as independent backups.
+- A shared phone/browser is not a separate local user profile. Separate users should use separate devices/browser storage until account-based local isolation is implemented.
+
 ## Privacy and limitations
 
 - **Local only in v0.1:** No cloud sync, login, multi-device sync, server backup or receipt cloud storage. Clearing browser website data or deleting the installed app can erase records. Export backups regularly.
