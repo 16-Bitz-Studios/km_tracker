@@ -5,7 +5,7 @@ const GUIDE=(()=>{
  const MARKER='tutorial_first_open_seen';
  let current=0,visible=false,returnScroll=0,origin=null;
  const steps=[
-  {icon:'↗',category:'WELCOME ABOARD',title:'Make every kilometre count.',
+  {icon:'↗',category:'WELCOME ABOARD',title:'Track every kilometre. Know every dollar.',
    summary:'TruckLedger keeps your truck mileage, earnings, expenses and client pricing together — even when you are offline.',
    points:[
     ['Work','Record a start and end odometer, client, site and the truck charges.'],
@@ -92,7 +92,7 @@ const GUIDE=(()=>{
   const cards=step.points.map(([name,body],i)=>
    '<div class="guide-item"><span class="guide-item-number">'+String(i+1).padStart(2,'0')+'</span><div><strong>'+name+'</strong><p>'+body+'</p></div></div>').join('');
   root.innerHTML='<div class="guide-shell" role="dialog" aria-modal="true" aria-labelledby="guide-title">'+
-   '<header class="guide-header"><div class="guide-brand"><span class="guide-brand-icon">↗</span><span>TRUCKLEDGER <span class="guide-brand-light">/ GUIDE</span></span></div>'+
+   '<header class="guide-header"><div class="guide-brand"><span class="guide-brand-icon"><img src="./icon.svg?v=24" alt="" width="32" height="32"></span><span>TRUCKLEDGER <span class="guide-brand-light">/ GUIDE</span></span></div>'+
    '<button type="button" class="guide-close" data-guide-action="skip" aria-label="Close tutorial">✕</button></header>'+
    '<div class="guide-progress-label"><span>'+step.category+'</span><span>'+String(current+1).padStart(2,'0')+' / '+String(steps.length).padStart(2,'0')+'</span></div>'+
    '<div class="guide-progress-track" role="progressbar" aria-label="Tutorial progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+progress+'"><div style="width:'+progress+'%"></div></div>'+
