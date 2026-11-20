@@ -209,3 +209,32 @@ dialog[open] .dialog-wrap{animation:sheet-arrive 175ms cubic-bezier(.2,.8,.25,1)
  animation:none!important;
  }
 }
+
+
+/* v1.4: always-visible but non-blocking odometer-based personal gap preview. */
+.auto-personal-preview.full{grid-column:1/-1}
+.auto-personal-preview[hidden]{display:none!important}
+.auto-personal-preview{
+ display:flex;align-items:flex-start;gap:11px;
+ padding:13px 14px;margin:-3px 0 9px;
+ background:linear-gradient(125deg,#183d41,#153443);
+ border:1px solid #3f8b7b;border-radius:14px;
+ animation:personal-preview-enter 170ms ease-out both;
+}
+.auto-preview-icon{
+ display:grid;place-items:center;flex:none;
+ width:31px;height:31px;border-radius:10px;
+ background:#2a645b;color:#b6fce9;font-weight:800;
+}
+.auto-personal-preview strong{display:block;font-size:14px;color:#9af4da;margin:1px 0 5px}
+.auto-personal-preview .hint{margin:0;line-height:1.45}
+@keyframes personal-preview-enter{from{opacity:.5}to{opacity:1}}
+.auto-personal-line{background:#17323a6a;border-radius:12px;margin:2px 0;padding:9px 6px}
+.auto-personal-line .item-title{color:#c7f5e7;font-weight:720}
+.auto-personal-line .item-sub{font-size:11px;line-height:1.4}
+.auto-personal-line .item-side{align-self:center}
+#auto-personal-settings .checkrow{margin:12px 0 16px}
+#auto-personal-settings .form-field input[type=date]{min-height:47px}
+@media(prefers-reduced-motion:reduce){
+ .auto-personal-preview{animation:none!important}
+}
