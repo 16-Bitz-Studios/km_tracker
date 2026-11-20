@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <link rel="stylesheet" href="./style.css?v=21">
+  <link rel="stylesheet" href="./style.css?v=23">
   <title>TruckLedger</title>
 </head>
 <body>
@@ -52,6 +52,13 @@
 
   <section id="guide-overlay" hidden aria-label="TruckLedger getting started tutorial"></section>
 
+  <div id="app-update-banner" role="status" aria-live="polite" hidden>
+    <div class="app-update-icon" aria-hidden="true">↗</div>
+    <div class="app-update-message" data-update-message>TruckLedger update ready.</div>
+    <button type="button" class="app-update-action" data-app-reload>Refresh</button>
+    <button type="button" class="app-update-close" data-app-update-dismiss aria-label="Dismiss update reminder">✕</button>
+  </div>
+
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="https://accounts.google.com/gsi/client" async></script>
   <script src="./cloud.js" defer></script>
@@ -61,6 +68,7 @@
   <script src="./motion.js?v=17" defer></script>
   <script src="./auto_personal.js?v=18" defer></script>
   <script src="./tutorial.js?v=22" defer></script>
-  <script src="./app.js?v=21" defer></script>
+  <script src="./polish.js?v=23" defer></script>
+  <script src="./app.js?v=23" defer></script>
 </body>
 </html>
