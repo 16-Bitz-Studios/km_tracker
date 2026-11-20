@@ -512,3 +512,63 @@ body.standalone-editing #app-update-banner,body.guide-open #app-update-banner{di
  .trend-point-fill,.mix-fill,.barfill,.company-bar > div{
  animation:none!important;transition:none!important}
 }
+
+
+/* v1.9 — more expressive motion, while interaction remains immediate.
+   Longer animations are transform/opacity based; no JS page delays. */
+#launch-splash{
+ animation:splash-safety-fade 430ms linear 4.1s forwards;
+ transition:opacity 430ms cubic-bezier(.2,.75,.3,1);
+}
+#launch-splash.is-exiting{animation:none!important;opacity:0}
+.launch-art{animation:none!important}
+.launch-status i{animation:splash-status-breathe 1250ms ease-in-out infinite alternate}
+.screen-stage{animation:screen-v19 440ms cubic-bezier(.17,.75,.2,1) both}
+.screen-stage[data-enter="forward"]{--screen-enter-x:22px}
+.screen-stage[data-enter="backward"]{--screen-enter-x:-22px}
+@keyframes screen-v19{
+ from{opacity:.22;transform:translate3d(var(--screen-enter-x,0px),11px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+.screen-stage[data-view="dashboard"] > .card,
+.screen-stage[data-view="dashboard"] > .grid2,
+.screen-stage[data-view="investment"] > .card{
+ animation:card-v19 590ms cubic-bezier(.17,.81,.2,1) both;
+}
+.screen-stage[data-view="dashboard"] > .card:nth-child(2),
+.screen-stage[data-view="dashboard"] > .grid2:nth-child(2){animation-delay:55ms}
+.screen-stage[data-view="dashboard"] > .card:nth-child(3),
+.screen-stage[data-view="dashboard"] > .grid2:nth-child(3){animation-delay:110ms}
+.screen-stage[data-view="dashboard"] > .card:nth-child(4),
+.screen-stage[data-view="dashboard"] > .grid2:nth-child(4){animation-delay:165ms}
+.screen-stage[data-view="dashboard"] > .card:nth-child(5),
+.screen-stage[data-view="dashboard"] > .grid2:nth-child(5){animation-delay:210ms}
+@keyframes card-v19{
+ from{opacity:.25;transform:translate3d(0,17px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+.trend-point-fill{animation:trend-grow 720ms cubic-bezier(.2,.75,.18,1) both;
+ animation-delay:calc(var(--index)*30ms)}
+.mix-fill,.barfill,.company-bar > div{
+ animation:chart-reveal 660ms cubic-bezier(.2,.75,.18,1) both;
+}
+.trend-toggle button,.periodbar button{transition:background-color 275ms ease,color 275ms ease,
+ box-shadow 275ms ease,transform 210ms ease}
+.btn,.icon-button,.tabbar button{transition:transform 220ms cubic-bezier(.2,.8,.2,1),box-shadow 250ms ease,
+ background-color 235ms ease,border-color 235ms ease}
+#editor-page .editor-page-head{animation:editor-heading-in 340ms ease-out both}
+#editor-page #editor-page-content{animation:editor-content-in 340ms ease-out both}
+dialog[open] .dialog-wrap{animation:sheet-arrive 320ms cubic-bezier(.2,.76,.2,1) both}
+.odometer-live.just-ready .odometer-live-value{animation:odometer-settle 310ms ease-out both}
+/* Obey accessibility preferences, even with the slower animations. */
+@media(prefers-reduced-motion:reduce){
+ #launch-splash,.launch-art,.launch-status i,.screen-stage,
+ .screen-stage[data-view="dashboard"] > .card,
+ .screen-stage[data-view="dashboard"] > .grid2,
+ .screen-stage[data-view="investment"] > .card,
+ .trend-point-fill,.mix-fill,.barfill,.company-bar > div,
+ #editor-page .editor-page-head,#editor-page #editor-page-content,
+ dialog[open] .dialog-wrap,.odometer-live.just-ready .odometer-live-value{
+ animation:none!important;transition:none!important
+ }
+}
