@@ -10,7 +10,9 @@ const FINANCES=(()=>{
  const ownerParts=r=>{
    if(!r)return {km:0,hours:0,fuel:0,total:0};
    const a=[number(r.km_amount),number(r.hours_amount),number(r.fuel_amount)];
-   const result=r.amount_mode==='owner'?a.map(round):splitEarnings(a,number(r.share_percent??85));
+   // Opening YTD amounts are already the owner's earnings (after the employer split).
+   // Apply no further percentage, including for entries saved under older versions.
+   const result=a.map(round);
    return {km:result[0],hours:result[1],fuel:result[2],total:round(result.reduce((x,y)=>x+y,0))};
  };
  const covered=t=>{
@@ -42,7 +44,7 @@ const FINANCES=(()=>{
        '<div class="datum"><span>Previously earned</span><strong>'+money(s.openingRevenue)+'</strong></div>'+
        '<div class="datum"><span>Tracked after opening</span><strong>'+money(s.trackedRevenue)+'</strong></div>'+
        '<div class="datum"><strong>Combined earnings</strong><strong>'+money(s.vehicleRevenue)+'</strong></div>'+
-       '<p class="hint">Previously earned amounts do not create kilometres or trips.</p></div>';
+       '<p class="hint">Previous earnings are already your share; no second 85% deduction. Opening balances do not create kilometres or trips.</p></div>';
    }
    out+='<div class="card"><div class="split-line"><strong>Lifetime truck investment</strong><button class="inline-link" type="button" data-finance-purchase>Vehicle details</button></div>'+
      '<div class="datum"><span>All-time earned, including opening YTD</span><strong>'+money(life.revenue)+'</strong></div>'+
@@ -65,19 +67,17 @@ const FINANCES=(()=>{
    const date=old?.through_date||suggested,parts=ownerParts(old);
    const years=records().map(r=>'<button class="inline-link" type="button" data-finance-year="'+r.year+'">'+r.year+'</button>').join(' · ');
    return '<div class="card" id="opening-ytd-card"><div class="split-line"><strong>Opening YTD earnings</strong><span class="tag work">HISTORY</span></div>'+
-     '<p class="hint">For the months before you started using TruckLedger, enter the three existing income totals. No past mileage or individual trips required.</p>'+
+     '<p class="hint">Enter what you already earned from your truck before tracking began, after Ace\'s share. Do NOT enter the full client charge-out. No past trips or mileage required.</p>'+
      (years?'<p class="hint">Saved years: '+years+'</p>':'')+
      '<form id="opening-form"><div class="form-grid">'+
      field('Calendar year','year',y,{type:'number',step:'1',min:2000,max:2100,required:true})+
      field('Included through date','through_date',date,{type:'date',required:true})+
-     '<div class="form-field full"><label for="opening-mode">Amounts being entered</label><select id="opening-mode" name="amount_mode">'+
-     '<option value="client"'+(old?.amount_mode!=='owner'?' selected':'')+'>Full client charge-out amounts (apply earnings share)</option>'+
-     '<option value="owner"'+(old?.amount_mode==='owner'?' selected':'')+'>My earnings already (do not apply share twice)</option></select></div>'+
-     field('Truck km amount (CAD)','km_amount',old?.km_amount??0,{type:'number',step:'0.01',min:0})+
-     field('Truck hours amount (CAD)','hours_amount',old?.hours_amount??0,{type:'number',step:'0.01',min:0})+
-     field('Fuel surcharge amount (CAD)','fuel_amount',old?.fuel_amount??0,{type:'number',step:'0.01',min:0})+
+     '<div class="notice">These amounts are already yours. TruckLedger will not deduct 15% again. Normal new trips still use your saved earnings percentage.</div>'+
+     field('Truck km earned (CAD)','km_amount',old?.km_amount??0,{type:'number',step:'0.01',min:0})+
+     field('Truck hours earned (CAD)','hours_amount',old?.hours_amount??0,{type:'number',step:'0.01',min:0})+
+     field('Fuel surcharge earned (CAD)','fuel_amount',old?.fuel_amount??0,{type:'number',step:'0.01',min:0})+
      '</div><div class="datum"><span>Your opening earnings</span><strong id="opening-preview">'+money(parts.total)+'</strong></div>'+
-     '<p class="hint">For full charge-out amounts, your current earnings percentage is '+fmtNum(old?.share_percent??sharePercent())+'%. Trip earnings on or before the cutoff date are not counted again, though their mileage remains in the log. Historical expenses are not assumed; enter any you need separately.</p>'+
+     '<p class="hint">Your opening balance is the sum of these three amounts, with no additional percentage deducted. Trip earnings on or before the cutoff are not counted again, but their mileage remains. Historical expenses must be added separately if you want them deducted.</p>'+
      '<div class="foot-actions"><button type="submit" class="btn">Save opening YTD</button>'+
      (old?'<button type="button" class="btn warn" data-finance-delete="'+y+'">Delete opening</button>':'')+
      '</div></form></div>';
@@ -89,10 +89,9 @@ const FINANCES=(()=>{
    const km=parsePositive(el.km_amount.value,'Truck kilometre earnings');
    const hours=parsePositive(el.hours_amount.value,'Truck-hour earnings');
    const fuel=parsePositive(el.fuel_amount.value,'Fuel-surcharge earnings');
-   const mode=el.amount_mode.value;if(!['owner','client'].includes(mode))throw Error('Select the type of amounts you are entering');
-   const old=getYear(year),pct=old&&old.amount_mode===mode?number(old.share_percent??85):sharePercent();
-   const record={id:idFor(year),year,through_date:through,amount_mode:mode,km_amount:km,hours_amount:hours,fuel_amount:fuel,
-      share_percent:pct,created_at:old?.created_at||new Date().toISOString(),updated_at:new Date().toISOString()};
+   const old=getYear(year);
+   const record={id:idFor(year),year,through_date:through,amount_mode:'owner',km_amount:km,hours_amount:hours,fuel_amount:fuel,
+      created_at:old?.created_at||new Date().toISOString(),updated_at:new Date().toISOString()};
    if(!confirm('Save YTD opening through '+through+'?\n\nTrips on or before this date will not add separate earnings to totals. They will not be deleted.'))return;
    await writeWithAudit('settings',record,old);selectedYear=year;await refresh();toast('Opening YTD earnings saved');
  }
@@ -123,9 +122,8 @@ const FINANCES=(()=>{
  document.addEventListener('input',event=>{
    if(!event.target.closest('#opening-form'))return;
    const form=document.getElementById('opening-form'),el=form.elements;
-   const old=getYear(selectedYear),mode=el.amount_mode.value,pct=old&&old.amount_mode===mode?number(old.share_percent??85):sharePercent();
    const values=['km_amount','hours_amount','fuel_amount'].map(n=>Math.max(0,number(el[n].value)));
-   const earned=mode==='owner'?round(values.reduce((x,y)=>x+y,0)):round(splitEarnings(values,pct).reduce((x,y)=>x+y,0));
+   const earned=round(values.reduce((x,y)=>x+y,0));
    document.getElementById('opening-preview').textContent=money(earned);
  });
  return {records,getYear,ownerParts,covered,periodRecords,periodTotal,purchasePrice,lifetime,dashboard,panel};
