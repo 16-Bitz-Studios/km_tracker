@@ -192,3 +192,12 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The optional `polish.js` module adds tiny tactile clicks where the browser supports `navigator.vibrate` (generally Android) and short save-confirmation feedback. Unsupported platforms silently keep the normal visual feedback; Reduce Motion disables haptics.
 - When a new service worker takes over an already controlled page, a small **Update ready** notice offers Refresh or Dismiss. Refresh is blocked while editing a record or reading the tutorial, preventing accidental loss of unsaved entry data. There is no forced reload. Navigation, offline storage and backups continue working if `polish.js` fails to load.
 - Shell cache v23 precaches the new optional script and updated app/styles for offline Home Screen use. No database schema changes or migrations.
+
+### v1.8 — new brand identity, animated route launch and native-feeling motion
+
+- Official slogan is **Track every kilometre. Know every dollar.**, reflected in the app header, metadata, first-run guide and install manifest.
+- The app's route-navigation emblem is a new original teal pointer over a winding road. The updated scalable `icon.svg`, iOS `apple-touch-icon.png` (192 px), and Android/PWA 192 px and 512 px PNG assets are included and versioned for fresh installs.
+- Added original generated `splash.webp` artwork with the new icon, name and slogan. It shows as a lightweight **in-app** launch visual and fades out after the first render. It is not an Apple-provided native launch screen. The `splash.js` controller is optional, has a CSS failure fallback, and never intercepts touches or inputs.
+- Refined page transitions, dashboard card arrivals, bar-chart reveals and animated earnings counters. Transitions use opacity/transform and last a few hundred milliseconds; **Reduce Motion** disables them. No new animation libraries or page-visit delays were introduced.
+- Updated offline shell v24 precaches the new icon, full brand splash, manifest and all versioned frontend assets. No changes were made to database schemas, saved work/personal kilometres, financial calculations, Google Drive backups or the iPhone full-page editor keyboard workaround.
+- iOS can retain its previously installed Home Screen icon in SpringBoard even after webpage asset updates. Do **not** delete a Home Screen installation with local data just to change its icon; export and verify a full ZIP backup first if reinstalling becomes necessary.
