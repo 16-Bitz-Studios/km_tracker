@@ -429,11 +429,12 @@ async function init(){document.addEventListener('click',routeClick);document.add
  }
  if(typeof AUTO_PERSONAL!=='undefined')await AUTO_PERSONAL.ensure();
  await refresh();
+ if(typeof SPLASH!=='undefined')SPLASH.ready();
  if(showGuide&&typeof GUIDE!=='undefined'){
   try{GUIDE.show();}catch(guideError){console.warn('Unable to display tutorial',guideError);}
  }
  if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Offline install unavailable',err));}
  catch(e){const storageIssue=/indexeddb|storage|database/i.test(String(e?.message||''));$('#content').innerHTML=storageIssue?
  `<div class="card"><h1>Device storage unavailable</h1><p>TruckLedger cannot access local storage. Don't remove the app or clear its website data until your records are backed up.</p><p class="danger">${esc(e.message)}</p></div>`:
- `<div class="card"><h1>App loading issue</h1><p>One of the app components didn't load correctly. Your saved mileage records have not been deleted.</p><p class="danger">${esc(e.message)}</p><p>Reconnect to the internet, then close and reopen the app. Do not clear website data.</p></div>`;console.error(e);}}
+ `<div class="card"><h1>App loading issue</h1><p>One of the app components didn't load correctly. Your saved mileage records have not been deleted.</p><p class="danger">${esc(e.message)}</p><p>Reconnect to the internet, then close and reopen the app. Do not clear website data.</p></div>`;console.error(e);if(typeof SPLASH!=='undefined')SPLASH.ready();}}
 init();
