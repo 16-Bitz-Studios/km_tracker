@@ -142,3 +142,9 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The lightweight **Activity trend** card has tappable Earned / Costs bars grouped by day (Today/Week), seven-day intervals (Month), calendar month (Year), or year (All). It uses only dated work trips and recorded expenses; YTD opening balances are kept in the main Year/All earnings totals, **never invented as historical dated chart bars**.
 - Short native CSS animations grow the chart bars and earnings breakdown; key dashboard currency figures smoothly change between periods. Screen navigation uses a subtle ~165ms fade/slide and press feedback without third-party libraries.
 - Apple's **Reduce Motion** preference disables animations. The existing iPhone Home Screen full-page editor, native number keypad, IndexedDB records, Google Drive backup, and offline support are unchanged.
+
+### v1.2.1 — Startup recovery and mismatched-cache protection
+
+- Fixed the startup regression `Can't find variable: MOTION` by making the optional motion and trend chart modules fail-safe. The app can render records and normal controls even if those optional JavaScript files are temporarily missing or stale.
+- Refresh the application shell to v16, cache-bust the essential updated scripts, and prefer fresh HTML/JS/CSS while online with offline cache fallback. This reduces the chance that Safari or an installed iOS Home Screen app loads a mixture of old and new scripts.
+- The generic startup error screen now distinguishes a real IndexedDB problem from an app-code loading issue and explicitly advises preserving local data; no storage cleanup or migration is involved.
