@@ -135,3 +135,10 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Google OAuth account authentication alone is **not** treated as proof that Drive backups are operational. A connection is reported as successful only when listing the account's hidden Drive app-data files succeeds.
 - If the Google Drive API is disabled for Google Cloud project `187913587103`, the app gives an actionable message to enable the API in the correct project. No cloud backup is claimed or uploaded on an API-disabled error.
 - A failed Drive access check rolls back the tentative session token without altering on-device trips, receipts, opening YTD figures, or manual ZIP backups.
+
+### v1.2 — premium micro-interactions, time-series and Today's view
+
+- Overview includes **Today, Week, Month, Year, All** tabs. Today shows today's earnings and expenses; its trend chart provides a seven-day context.
+- The lightweight **Activity trend** card has tappable Earned / Costs bars grouped by day (Today/Week), seven-day intervals (Month), calendar month (Year), or year (All). It uses only dated work trips and recorded expenses; YTD opening balances are kept in the main Year/All earnings totals, **never invented as historical dated chart bars**.
+- Short native CSS animations grow the chart bars and earnings breakdown; key dashboard currency figures smoothly change between periods. Screen navigation uses a subtle ~165ms fade/slide and press feedback without third-party libraries.
+- Apple's **Reduce Motion** preference disables animations. The existing iPhone Home Screen full-page editor, native number keypad, IndexedDB records, Google Drive backup, and offline support are unchanged.
