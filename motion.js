@@ -31,7 +31,7 @@ const MOTION=(()=>{
   let first=null;
   const step=time=>{
    if(first===null)first=time;
-   const progress=Math.min(1,(time-first)/590);
+   const progress=Math.min(1,(time-first)/780);
    const eased=1-Math.pow(1-progress,3);
    for(const item of animations){
     if(item.node.isConnected)item.node.textContent=currency.format(item.start+(item.end-item.start)*eased);
