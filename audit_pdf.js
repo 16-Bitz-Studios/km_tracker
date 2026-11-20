@@ -52,7 +52,7 @@ async function makeAuditPDF(){
  const dist=n=>n===undefined||n===null||n===''?'Open':new Intl.NumberFormat('en-CA',{maximumFractionDigits:1}).format(Number(n))+' km';
  const sortDate=arr=>arr.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.created_at||'').localeCompare(b.created_at||''));
  const work=sortDate(state.trips.filter(t=>t.kind==='work'));
- const personal=sortDate(state.trips.filter(t=>t.kind==='personal'));
+ const personal=sortDate(state.trips.filter(t=>t.kind==='personal').concat(typeof AUTO_PERSONAL!=='undefined'?AUTO_PERSONAL.all():[]));
  const expenses=sortDate(state.expenses);
  const changes=state.audit.slice().sort((a,b)=>(a.at||'').localeCompare(b.at||''));
  const trackedEarn=round(work.filter(t=>!FINANCES.covered(t)).reduce((n,t)=>n+calculate(t).truckRevenue,0));const opening=FINANCES.periodTotal('all');const earn=round(trackedEarn+opening);const investment=FINANCES.lifetime();
@@ -71,7 +71,7 @@ async function makeAuditPDF(){
    ['OPERATING PROFIT (before purchase)',money(round(earn-costs))],['Original truck purchase price',investment.purchase?money(investment.purchase):'Not entered'],['NET AFTER PURCHASE COST',investment.purchase?money(investment.afterPurchase):'Purchase price not entered'],['Operating profit margin',investment.margin===null?'No earnings':investment.margin.toFixed(1)+'%'],['Return on purchase cost',investment.roi===null?'Purchase price not entered':investment.roi.toFixed(1)+'%']
  ]);
  p.text('Trip earnings are calculated using the owner share of kilometre, truck-hour and fuel surcharge charges (85% by default). Opening YTD amounts are already the owner earnings and receive no extra percentage deduction. Employer-retained revenue is excluded.',{size:8.5});
- p.text('Opening YTD amounts are earnings totals only and do not add historical mileage. To prevent double counting, trip revenue dated within an opening balance is excluded from combined earnings; those trips remain in the work log below.',{size:8.5});p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Operating profit = your combined earnings minus logged vehicle costs, including personal-use costs. The purchase price is then deducted once for lifetime investment return. Loan principal, remaining vehicle value, taxes, and missing historical expenses are not accounted for.',{size:8.5});
+ p.text('Opening YTD amounts are earnings totals only and do not add historical mileage. To prevent double counting, trip revenue dated within an opening balance is excluded from combined earnings; those trips remain in the work log below.',{size:8.5});p.text('Personal distances include odometer gaps automatically inferred between workdays, if enabled. These virtual entries are estimates, not GPS-verified journeys, and are assigned to the next workday. Manual personal trips within the gap are excluded to prevent double-counting. They can be reconstructed from the original odometer records in the backup.',{size:8.5});p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Operating profit = your combined earnings minus logged vehicle costs, including personal-use costs. The purchase price is then deducted once for lifetime investment return. Loan principal, remaining vehicle value, taxes, and missing historical expenses are not accounted for.',{size:8.5});
  p.text('Included: '+work.length+' work trips, '+personal.length+' personal trips, '+expenses.length+' expenses, '+state.receipts.length+' receipt references and '+changes.length+' change-history events.',{size:8.5});
 
  p.section('Opening YTD earnings - summarized prior months');
@@ -102,7 +102,7 @@ async function makeAuditPDF(){
  p.section('Personal trips - complete odometer log');
  if(!personal.length)p.text('No personal trips recorded.');
  personal.forEach((t,i)=>p.entry((i+1)+'. '+(t.date||'Undated')+' | '+(t.destination||'Personal drive'),[
-   ['Reason',t.purpose||'-'],['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],
+   ['Source',t.auto_personal?'AUTO-INFERRED odometer gap, not GPS verified':'Manually recorded trip'],['Date range',t.auto_personal?t.from_date+' to '+t.to_date:'Single trip date'],['Reason',t.purpose||'-'],['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],
    ['Distance',dist(tripDistance(t))],['Notes',t.notes||'-'],['Record ID',t.id]
  ]));
  p.section('Vehicle costs and receipts');
