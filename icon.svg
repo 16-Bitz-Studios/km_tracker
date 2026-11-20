@@ -1,1 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#0c1723"/><rect x="54" y="70" width="404" height="372" rx="78" fill="#183e43"/><path d="M111 342h79l67-120h91" fill="none" stroke="#57ddc1" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/><path d="m275 145 80 76-83 74" fill="none" stroke="#57ddc1" stroke-width="39" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#065b76"/><stop offset=".27" stop-color="#07365e"/><stop offset=".67" stop-color="#071a3c"/><stop offset="1" stop-color="#050f27"/></linearGradient>
+ <radialGradient id="glow" cx=".05" cy="0" r=".85"><stop stop-color="#00d9d0" stop-opacity=".85"/><stop offset=".55" stop-color="#007b9b" stop-opacity=".13"/><stop offset="1" stop-color="#001c47" stop-opacity="0"/></radialGradient>
+ <linearGradient id="road" x1="0" y1="1" x2=".9" y2="0"><stop stop-color="#116ba8"/><stop offset=".45" stop-color="#0c3763"/><stop offset="1" stop-color="#06324a"/></linearGradient>
+ <linearGradient id="roadEdge" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#0879de"/><stop offset=".55" stop-color="#20d5da"/><stop offset="1" stop-color="#10f1c2"/></linearGradient>
+ <linearGradient id="arrow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e9ffff"/><stop offset=".25" stop-color="#62fafa"/><stop offset=".57" stop-color="#0adcd8"/><stop offset="1" stop-color="#00b1e5"/></linearGradient>
+ <linearGradient id="arrowLow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#078df9"/><stop offset=".58" stop-color="#063fd1"/><stop offset="1" stop-color="#045bda"/></linearGradient>
+ <clipPath id="round"><rect width="512" height="512" rx="92"/></clipPath>
+</defs>
+<g clip-path="url(#round)">
+ <rect width="512" height="512" fill="url(#bg)"/><rect width="512" height="512" fill="url(#glow)"/>
+ <path d="M-60 212C95 119 190 122 339 38C422-8 465-47 538-80L539 17C375 157 224 181 91 244L-44 314Z" fill="#23d9e1" opacity=".075"/>
+ <path d="M-70 522C55 394 170 384 273 367C338 356 402 338 421 307C444 270 376 243 322 239C292 237 262 242 231 246" fill="none" stroke="url(#roadEdge)" stroke-width="113" stroke-linecap="round"/>
+ <path d="M-70 522C55 394 170 384 273 367C338 356 402 338 421 307C444 270 376 243 322 239C292 237 262 242 231 246" fill="none" stroke="url(#road)" stroke-width="98" stroke-linecap="round"/>
+ <path d="M-70 522C55 394 170 384 273 367C338 356 402 338 421 307C444 270 376 243 322 239C292 237 262 242 231 246" fill="none" stroke="#d8faff" stroke-width="13" stroke-dasharray="37 30 27 27 18 33 16 42 12 38" opacity=".94" stroke-linecap="round"/>
+ <path d="M109 220Q92 207 114 191L383 92Q408 82 401 108L291 398Q283 424 268 397L206 272Z" fill="#00142d" opacity=".55" transform="translate(0 11)"/>
+ <path d="M109 220Q92 207 114 191L383 92Q408 82 401 108L291 398Q283 424 268 397L206 272Z" fill="url(#arrow)"/>
+ <path d="M109 220C139 233 177 234 206 244C236 253 245 270 247 300L268 397Q283 424 291 398L311 344L314 292C302 260 283 251 252 249L109 220Z" fill="url(#arrowLow)"/>
+ <path d="M117 201L388 100L209 249L107 220Q91 207 117 201Z" fill="#b9ffff" opacity=".24"/>
+</g></svg>
