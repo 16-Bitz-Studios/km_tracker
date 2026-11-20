@@ -12,35 +12,42 @@ const GUIDE=(()=>{
     ['Personal','Keep personal mileage separate, including automatic gaps between workdays.'],
     ['Profit','See your earnings, operating costs and long-term truck investment.']
    ],tip:'Your records are saved on this device. Backing up to Google Drive or ZIP is something you choose to do.'},
-  {icon:'⚙',category:'STEP 1 · SET UP YOUR TRUCK',title:'Start with Vehicle Details.',
+  {icon:'⌂',category:'STEP 1 · INSTALL ON YOUR PHONE',title:'Save TruckLedger to your Home Screen.',
+   summary:'Install the website as an app icon for quick access. Follow the instructions for your phone.',
+   points:[
+    ['iPhone / iPad · Safari','Open TruckLedger in Safari. Tap Share (or Page Menu → Share), scroll to Add to Home Screen, turn on Open as Web App if offered, then tap Add.'],
+    ['Android · Chrome','Open TruckLedger in Chrome. Tap the ⋮ menu, choose Install and create shortcut → Install (or Add to Home screen / Install app), then confirm.'],
+    ['Already installed?','Open the TruckLedger icon normally. Do not remove an existing installation with important records unless you have exported a backup.']
+   ],tip:'A Home Screen installation can keep local data separate from the same site opened in Safari. Use Google Drive or an exported ZIP to transfer records safely.'},
+  {icon:'⚙',category:'STEP 2 · SET UP YOUR TRUCK',title:'Start with Vehicle Details.',
    summary:'Open Data → Vehicle details and enter the basics once.',
    points:[
     ['Truck name','Give your truck a name, if you want one.'],
     ['Earnings share','Set the portion of client charges you earn. The default is 85%.'],
     ['Purchase price','Optional: enter what the truck cost to track purchase recovery under Invest.']
    ],tip:'The earnings share applies to new work trips; existing trips retain their saved percentage.'},
-  {icon:'▦',category:'STEP 2 · ADD CLIENTS',title:'Set up your client rates.',
+  {icon:'▦',category:'STEP 3 · ADD CLIENTS',title:'Set up your client rates.',
    summary:'Open Clients → Add. Enter each company’s rates so work trips can pick them up automatically.',
    points:[
     ['Vehicle billing','Choose kilometres, truck hours, both, or neither.'],
     ['Fuel surcharges','Enable all methods that client permits — per km, per truck hour, flat, or percentage — and set each rate.'],
     ['Site selection','When entering a trip, choose whichever surcharge applies at that location.']
    ],tip:'Enter full client charge-out rates in the client card. TruckLedger shows only your earnings share in results.'},
-  {icon:'◫',category:'STEP 3 · MORNING ROUTINE',title:'Start your work trip.',
+  {icon:'◫',category:'STEP 4 · MORNING ROUTINE',title:'Start your work trip.',
    summary:'Open Trips → Work Trip before leaving in the morning.',
    points:[
     ['Odometer','Enter the current starting kilometres.'],
     ['Job details','Choose the client, location and what you were doing.'],
     ['Save an open trip','You can save immediately without the ending reading, then finish it later.']
    ],tip:'Kilometre fields use the iPhone number keypad. An unfinished trip does not count as completed distance or earnings.'},
-  {icon:'✓',category:'STEP 4 · END OF WORK',title:'Finish the trip and check billing.',
+  {icon:'✓',category:'STEP 5 · END OF WORK',title:'Finish the trip and check billing.',
    summary:'After work, edit that trip and enter the ending odometer.',
    points:[
     ['Actual kilometres','Calculated from the start and end readings.'],
     ['Billed kilometres','Optional: enter a different distance charged to the client, or leave blank to use actual km.'],
     ['Truck hours + fuel','Enter any truck hours, select the site’s fuel surcharge method and check what is billable.']
    ],tip:'TruckLedger saves the chosen rates with the trip. Changing the client’s rates later will not rewrite past earnings.'},
-  {icon:'↝',category:'STEP 5 · PERSONAL KILOMETRES',title:'Let odometer gaps do the work.',
+  {icon:'↝',category:'STEP 6 · PERSONAL KILOMETRES',title:'Let odometer gaps do the work.',
    summary:'TruckLedger can infer personal driving between completed workdays.',
    example:'Friday ends at 125,000 km → Monday starts at 125,050 km = 50 km inferred personal.',
    points:[
@@ -48,21 +55,21 @@ const GUIDE=(()=>{
     ['Manual trips','Log shopping or weekend trips yourself if you want locations and reasons. They are deducted from the automatic gap.'],
     ['Control it','Turn the feature on or off under Data → Automatic personal kilometres.']
    ],tip:'Inferred driving is an estimate, not GPS tracking. It is shown as Auto Personal, not billed to a client.'},
-  {icon:'▤',category:'STEP 6 · TRACK COSTS',title:'Keep your receipts and expenses.',
+  {icon:'▤',category:'STEP 7 · TRACK COSTS',title:'Keep your receipts and expenses.',
    summary:'Go to Costs to add fuel, maintenance, repairs and other truck expenses.',
    points:[
     ['Fuel','Enter the purchase amount and optional fuel details.'],
     ['Maintenance','Record repairs, service and other vehicle costs.'],
     ['Receipts','Attach a photo or receipt file for your own records and auditing.']
    ],tip:'Costs reduce operating profit. Don’t also count loan principal as a vehicle expense if you are including the truck purchase price in Invest.'},
-  {icon:'◈',category:'STEP 7 · SEE THE WHOLE PICTURE',title:'Understand your numbers.',
+  {icon:'◈',category:'STEP 8 · SEE THE WHOLE PICTURE',title:'Understand your numbers.',
    summary:'Overview is for day-to-day performance. Invest is for the truck’s lifetime return.',
    points:[
     ['Overview','Switch between Today, Week, Month, Year and All. Explore the animated earnings and cost graphs.'],
     ['Invest','See all-time owner earnings, recorded expenses, purchase price and purchase recovery.'],
     ['Opening YTD','Already earning money before TruckLedger? Add your previous net earnings under Data → Opening YTD.']
    ],tip:'Opening YTD is already your earnings. Do not deduct the 15% again; it counts toward Year and All, not the current day/week/month.'},
-  {icon:'⇩',category:'STEP 8 · KEEP IT SAFE',title:'Back up and export your records.',
+  {icon:'⇩',category:'STEP 9 · KEEP IT SAFE',title:'Back up and export your records.',
    summary:'Open Data & backup regularly. The app works offline, but your records need backups.',
    points:[
     ['Google Drive','Link your own Google account, then choose Back up to Google Drive. Uploading is manual, not automatic syncing.'],
