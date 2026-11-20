@@ -116,3 +116,10 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - **Opening YTD earnings** accepts only amounts that the vehicle owner has already earned (after the employer's percentage). It never applies 85% again to these entries; regular newly logged trips still use their own 85% or configured percentage.
 - Previously saved YTD records that had been marked as `amount_mode: client` are also interpreted as already earned, without rewriting their original saved fields or history. Saving the opening balance again records it as `amount_mode: owner`; the audit report uses the corrected earnings basis.
 - The combined lifetime investment view still subtracts logged expenses and the purchase price as separate calculations. Opening earnings are not automatically reduced for any historical costs that were never logged.
+
+### v0.9 — Dashboard and Investment navigation
+
+- **Overview** supports This week (Monday–Sunday), This month, This year, and All time. The opening YTD totals remain included only in year/all-time. Weekly entries are filtered by the phone's local calendar week.
+- Overview now prioritizes the owner's earned revenue, recorded expenses and operating profit, with a breakdown of earnings by kilometres, vehicle hours and fuel surcharges. It shows actual, personal, billed and additional billed km, recent trips and client activity.
+- Lifetime purchase recovery moved entirely off the Overview and into a sixth bottom-navigation **Invest** tab, which shows purchase cost, operating profit, net after purchase and investment return. Data remains the place to edit opening YTD and purchase price.
+- All client records, earnings calculations, local backups and the PDF audit format are preserved.
