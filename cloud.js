@@ -1,9 +1,9 @@
 /* TruckLedger Google Drive integration — optional, per-user cloud backups.
    No client secret or access token is stored in the repository or localStorage.
-   Set GOOGLE_CLIENT_ID to the OAuth "Web application" client ID after setup. */
+   Public Web OAuth Client ID for the km_tracker GitHub Pages origin. */
 'use strict';
 const CLOUD=(()=>{
-  const GOOGLE_CLIENT_ID=''; // Public OAuth web client ID, configured by the app maintainer.
+  const GOOGLE_CLIENT_ID='187913587103-pdc621877o3cdkfvfm1k704dm6kdis0p.apps.googleusercontent.com'; // Public OAuth web client ID, configured by the app maintainer.
   const SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email';
   const KEY='truckledger-google-linked-email-v1';
   const PREFIX='TruckLedger_Backup_';
