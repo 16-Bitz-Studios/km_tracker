@@ -21,7 +21,7 @@ const FINANCES=(()=>{
    return !!record&&t.date<=record.through_date;
  };
  const periodRecords=period=>{
-   if(period==='week'||period==='month')return [];
+   if(period==='day'||period==='week'||period==='month')return [];
    if(period==='year')return records().filter(r=>Number(r.year)===Number(today().slice(0,4)));
    return records();
  };
