@@ -1,0 +1,5 @@
+# Do not accidentally commit private mileage exports or receipts.
+*backup*.zip
+*audit*.zip
+*.receipt
+.DS_Store
