@@ -7,7 +7,9 @@ const CLOUD=(()=>{
   const SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email';
   const KEY='truckledger-google-linked-email-v1';
   const PREFIX='TruckLedger_Backup_';
-  let token='',expires=0,busy=false,backups=[],email=localStorage.getItem(KEY)||'';
+  const savedEmail=()=>{try{return localStorage.getItem(KEY)||'';}catch{return '';}};
+  const storeEmail=value=>{try{if(value)localStorage.setItem(KEY,value);else localStorage.removeItem(KEY);}catch{}};
+  let token='',expires=0,busy=false,backups=[],email=savedEmail();
   const configured=()=>/^[0-9]+-[a-z0-9-]+\.apps\.googleusercontent\.com$/i.test(GOOGLE_CLIENT_ID);
   const authorized=()=>!!token&&Date.now()<expires;
   const ready=()=>configured()&&authorized();
@@ -71,7 +73,7 @@ const CLOUD=(()=>{
         throw new Error('This device is linked to '+email+'. Unlink that account first, then connect '+chosen+'. Local records will remain on this device.');
       }
       token=tempToken;expires=Date.now()+Math.max(0,Number(result.expires_in||3600)-60)*1000;
-      email=chosen;localStorage.setItem(KEY,email);
+      email=chosen;storeEmail(email);
       backups=[];toast('Google account linked: '+email);
       await listCore();
     }catch(e){alert('Google linking: '+e.message);}
@@ -81,7 +83,7 @@ const CLOUD=(()=>{
     if(busy)return;
     if(!confirm('Unlink '+email+' from this device? Local records stay here, and cloud backups remain in that Google account.'))return;
     if(token&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(token,()=>{});
-    token='';expires=0;email='';backups=[];localStorage.removeItem(KEY);update();toast('Google account unlinked from this device');
+    token='';expires=0;email='';backups=[];storeEmail('');update();toast('Google account unlinked from this device');
   }
   async function listCore(){
     const url='https://www.googleapis.com/drive/v3/files?'+new URLSearchParams({
