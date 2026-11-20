@@ -1,5 +1,5 @@
 // Update this cache name whenever frontend assets change.
-const CACHE = 'truckledger-shell-v15';
+const CACHE = 'truckledger-shell-v16';
 const SHELL = ['./', './index.html', './style.css', './app.js', './cloud.js', './audit_pdf.js', './finances.js', './trend.js', './motion.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
@@ -9,8 +9,18 @@ self.addEventListener('activate',event=>{
 });
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+  // A network-first strategy for app code prevents mixed cached versions
+  // (e.g. an updated app.js with an old/missing motion.js) after deployment.
+  // Previously installed files remain fully available when offline.
+  if(event.request.mode==='navigate'||event.request.destination==='script'||event.request.destination==='style'){
+    event.respondWith(fetch(event.request).then(response=>{
+      if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(event.request,copy)));}
+      return response;
+    }).catch(()=>caches.match(event.request).then(cached=>cached||Response.error())));
+    return;
+  }
   event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{
-    if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));}
+    if(response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE).then(cache=>cache.put(event.request,copy)));}
     return response;
   })));
 });
