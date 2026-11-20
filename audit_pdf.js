@@ -70,7 +70,7 @@ async function makeAuditPDF(){
    ['Other vehicle costs',money(round(costs-fuel))],['Total vehicle costs',money(costs)],
    ['OPERATING PROFIT (before purchase)',money(round(earn-costs))],['Original truck purchase price',investment.purchase?money(investment.purchase):'Not entered'],['NET AFTER PURCHASE COST',investment.purchase?money(investment.afterPurchase):'Purchase price not entered'],['Operating profit margin',investment.margin===null?'No earnings':investment.margin.toFixed(1)+'%'],['Return on purchase cost',investment.roi===null?'Purchase price not entered':investment.roi.toFixed(1)+'%']
  ]);
- p.text('Earnings are the vehicle owner share of kilometre charges, truck-hour charges and fuel surcharges. The default share is 85%; each trip retains its own recorded percentage. The employer share is excluded.',{size:8.5});
+ p.text('Trip earnings are calculated using the owner share of kilometre, truck-hour and fuel surcharge charges (85% by default). Opening YTD amounts are already the owner earnings and receive no extra percentage deduction. Employer-retained revenue is excluded.',{size:8.5});
  p.text('Opening YTD amounts are earnings totals only and do not add historical mileage. To prevent double counting, trip revenue dated within an opening balance is excluded from combined earnings; those trips remain in the work log below.',{size:8.5});p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Operating profit = your combined earnings minus logged vehicle costs, including personal-use costs. The purchase price is then deducted once for lifetime investment return. Loan principal, remaining vehicle value, taxes, and missing historical expenses are not accounted for.',{size:8.5});
  p.text('Included: '+work.length+' work trips, '+personal.length+' personal trips, '+expenses.length+' expenses, '+state.receipts.length+' receipt references and '+changes.length+' change-history events.',{size:8.5});
 
@@ -80,8 +80,8 @@ async function makeAuditPDF(){
  openingRecords.forEach(r=>{
    const earned=FINANCES.ownerParts(r);
    p.entry('Calendar year '+r.year+' | through '+r.through_date,[
-     ['Source of amounts',r.amount_mode==='owner'?'Owner earnings already received':'Client charge-out amounts; owner percentage applied'],
-     ['Owner earnings percentage',r.amount_mode==='owner'?'Not applied again':r.share_percent+'%'],
+     ['Accounting basis','Owner earnings already (after employer split)'],
+     ['Additional owner percentage','Not applied to YTD opening amounts'],
      ['Truck kilometre earnings',money(earned.km)],
      ['Truck-hour earnings',money(earned.hours)],
      ['Fuel surcharge earnings',money(earned.fuel)],
