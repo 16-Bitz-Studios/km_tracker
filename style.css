@@ -46,3 +46,17 @@
  .metric-value{font-size:21px}
  .overview-mix .split-line .small{font-size:10px}
 }
+
+/* Standalone iPhone input reliability. No native dialog or fixed keyboard container. */
+#editor-page[hidden]{display:none!important}
+body.standalone-editing .app{display:none}
+body.standalone-editing{background:var(--bg);min-height:100dvh}
+#editor-page{display:block;max-width:880px;min-height:100dvh;margin:0 auto;padding:0 16px calc(32px + env(safe-area-inset-bottom));background:var(--bg)}
+.editor-page-head{display:flex;align-items:center;gap:12px;padding:calc(13px + env(safe-area-inset-top)) 0 16px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.editor-back{flex:none;border:0;background:#21394b;color:var(--accent);min-height:44px;padding:10px 13px;border-radius:12px;font-weight:760}
+.editor-page-title{font-size:19px;font-weight:820;line-height:1.2;overflow-wrap:anywhere}
+#editor-page-content .form-grid{row-gap:11px}
+#editor-page-content .form-field input,#editor-page-content .form-field textarea{touch-action:auto;-webkit-user-select:text;user-select:text}
+#editor-page-content .form-field input:focus,#editor-page-content .form-field textarea:focus{outline:2px solid #57ddc155;outline-offset:1px}
+#editor-page-content .foot-actions{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+@media(min-width:700px){#editor-page{padding-left:27px;padding-right:27px}}
