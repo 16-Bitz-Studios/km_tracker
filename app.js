@@ -96,8 +96,17 @@ function pageTrips(){let a=displayTrips().filter(t=>state.tripFilter==='all'||t.
  return `<div class="section-heading"><div><div class="eyebrow">ODOMETER LOG</div><h1>Trips</h1></div><span class="muted small">${a.length} entries</span></div><div class="quick-actions"><button class="btn" data-new-trip="work">＋ Work</button><button class="btn secondary" data-new-trip="personal">＋ Personal</button></div><div class="chip-row">${[['all','All trips'],['work','Work only'],['personal','Personal only']].map(([v,label])=>`<button class="chip ${state.tripFilter===v?'active':''}" data-trip-filter="${v}">${label}</button>`).join('')}</div><div class="card"><div class="split-line" style="margin-bottom:10px"><strong>${fmtNum(km)} km</strong><span class="muted small">Completed distance in this view</span></div>${a.length?a.map(tripLine).join(''):`<div class="empty"><div class="empty-icon">↗</div>No trips logged yet. Tap Work or Personal to begin.</div>`}</div><div class="screen-note">Enter the start odometer in the morning and save it as an open trip. Return later to add the end reading. Only completed trips are included in totals. Auto-detected personal km are inferred from gaps between workday odometer readings, assigned to the next workday and automatically adjusted if you change a trip.</div>`;}
 function pageExpenses(){let a=state.expenses.filter(e=>state.expenseFilter==='all'||e.category===state.expenseFilter).sort((x,y)=>(y.date||'').localeCompare(x.date||''));const spent=a.reduce((s,e)=>s+number(e.amount),0);
  return `<div class="section-heading"><div><div class="eyebrow">RUNNING COSTS</div><h1>Vehicle costs</h1></div><button class="btn smallbtn" data-new-expense>＋ Add</button></div><div class="card hero"><div class="eyebrow" style="color:#a5f4d8">TOTAL RECORDED SPENDING</div><div class="hero-value">${fmtMoney(spent)}</div><div class="hero-sub">${a.length} expense entries · All dates</div></div><div class="chip-row">${['all','Fuel','Maintenance','Repairs','Tires','Insurance','Registration','Other'].map(k=>`<button class="chip ${state.expenseFilter===k?'active':''}" data-expense-filter="${k}">${k==='all'?'All costs':k}</button>`).join('')}</div><div class="card">${a.length?a.map(expenseLine).join(''):`<div class="empty"><div class="empty-icon">▤</div>Record fuel, repairs and maintenance here. Attach a receipt for your records.</div>`}</div><div class="screen-note">Tap any expense to view or replace its receipt. Receipts are stored on this device and included in your exported backup.</div>`;}
-function companyRateDescription(c){const parts=[],pct=sharePercent()/100;if(['km','both'].includes(c.mode))parts.push(`${fmtMoney(round(number(c.km_rate)*pct))}/km earned`);if(['truck_hours','both'].includes(c.mode))parts.push(`${fmtMoney(round(number(c.truck_hour_rate)*pct))}/truck hr earned`);if(c.surcharge_type&&c.surcharge_type!=='none')parts.push(`Fuel surcharge: ${c.surcharge_type==='percent'?`${fmtNum(c.surcharge_rate)}% (shared)`:c.surcharge_type==='per_km'?`${fmtMoney(round(number(c.surcharge_rate)*pct))}/km earned`:c.surcharge_type==='per_hour'?`${fmtMoney(round(number(c.surcharge_rate)*pct))}/truck hr earned`:fmtMoney(round(number(c.surcharge_rate)*pct))+' earned'}`);return parts.join(' · ')||'No charge rates set';}
-function pageCompanies(){return `<div class="section-heading"><div><div class="eyebrow">COMPANY RATE CARDS</div><h1>Clients</h1></div><button class="btn smallbtn" data-new-company>＋ Add</button></div><div class="notice">Enter the client's charge-out rates; the app shows only your earnings share in summaries. Each client can have different kilometre, truck hourly and fuel surcharge pricing. Saving a trip snapshots the rates so old trip amounts stay consistent when you update prices.</div><div class="card">${state.companies.length?state.companies.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<div class="listitem"><button class="item-main" data-edit-company="${esc(c.id)}"><div class="item-title">${esc(c.name)}</div><div class="item-sub">${esc(companyRateDescription(c))}</div></button><button class="icon-button" style="background:transparent;border:0" data-edit-company="${esc(c.id)}" aria-label="Edit company">›</button></div>`).join(''):`<div class="empty"><div class="empty-icon">▦</div>Add your first client to set up custom rates and kilometre billing.</div>`}</div><div class="screen-note">You can still log work trips without selecting a client, then assign one and set its rates later.</div>`;}
+function companyRateDescription(c){
+ const parts=[],pct=sharePercent()/100;
+ if(['km','both'].includes(c.mode))parts.push(fmtMoney(round(number(c.km_rate)*pct))+'/km earned');
+ if(['truck_hours','both'].includes(c.mode))parts.push(fmtMoney(round(number(c.truck_hour_rate)*pct))+'/truck hr earned');
+ const methods=companySurchargeOptions(c);
+ if(methods.length)parts.push('Fuel options: '+methods.map(o=>
+  surchargeLabel(o.type)+' '+(o.type==='percent'?fmtNum(o.rate)+'% (shared)':
+   surchargeRateDescription(o.type,round(o.rate*pct))+' earned')).join(', '));
+ return parts.join(' · ')||'No charge rates set';
+}
+function pageCompanies(){return `<div class="section-heading"><div><div class="eyebrow">COMPANY RATE CARDS</div><h1>Clients</h1></div><button class="btn smallbtn" data-new-company>＋ Add</button></div><div class="notice">Enter the client's charge-out rates; the app shows only your earnings share in summaries. Each client can offer multiple fuel surcharge methods (for example, per km at one location and per truck hour at another). Saving a trip snapshots the rates so old trip amounts stay consistent when you update prices.</div><div class="card">${state.companies.length?state.companies.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<div class="listitem"><button class="item-main" data-edit-company="${esc(c.id)}"><div class="item-title">${esc(c.name)}</div><div class="item-sub">${esc(companyRateDescription(c))}</div></button><button class="icon-button" style="background:transparent;border:0" data-edit-company="${esc(c.id)}" aria-label="Edit company">›</button></div>`).join(''):`<div class="empty"><div class="empty-icon">▦</div>Add your first client to set up custom rates and kilometre billing.</div>`}</div><div class="screen-note">You can still log work trips without selecting a client, then assign one and set its rates later.</div>`;}
 function pageData(){return `<div class="section-heading"><div><div class="eyebrow">SETTINGS & YOUR RECORDS</div><h1>Data & backup</h1></div></div><div class="card"><strong>Vehicle details</strong><form id="settings-form" style="margin-top:15px"><div class="form-field"><label for="vehicle-name">Truck name (optional)</label><input id="vehicle-name" name="vehicle_name" maxlength="80" placeholder="e.g. My F-350" value="${esc(state.settings.find(s=>s.id==='vehicle_name')?.value||'')}"></div><div class="form-field"><label for="purchase-price">Truck purchase price (CAD)</label><input id="purchase-price" name="purchase_price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Optional" value="${esc(state.settings.find(s=>s.id==='vehicle_purchase_price')?.value??'')}"><p class="hint">Original truck purchase cost. Included once in lifetime return, not monthly operating costs. Avoid also counting financed principal repayments as vehicle expenses.</p></div><div class="form-field"><label for="share-percent">Your share of client charges (%)</label><input id="share-percent" name="share_percent" type="number" step="0.1" min="0" max="100" required value="${esc(sharePercent())}"><p class="hint">Default 85%. Applies to new trips. Existing trips keep their recorded earnings percentage.</p></div><div class="split-line"><span class="muted small">Currency CAD · Distance km</span><button type="submit" class="btn smallbtn">Save</button></div></form></div>
  ${typeof AUTO_PERSONAL!=='undefined'?AUTO_PERSONAL.panel():''}
  ${FINANCES.panel()}
@@ -147,21 +156,128 @@ const selectField=(label,name,options,value='',full=false)=>`<div class="form-fi
 const textArea=(label,name,value)=>`<div class="form-field full"><label for="f-${name}">${label}</label><textarea id="f-${name}" name="${name}" rows="2">${esc(value||'')}</textarea></div>`;
 const checked=(name,label,on)=>`<div class="checkrow"><input type="checkbox" id="f-${name}" name="${name}" ${on?'checked':''}><label for="f-${name}">${label}</label></div>`;
 const nAttr='type="number" step="0.01" min="0" inputmode="decimal"';
-function defaultRate(c){return {mode:c?.mode||'none',km_rate:number(c?.km_rate),truck_hour_rate:number(c?.truck_hour_rate),surcharge_type:c?.surcharge_type||'none',surcharge_rate:number(c?.surcharge_rate)};}
+const SURCHARGE_METHODS=[
+ ['per_km','Per actual kilometre','/actual km'],
+ ['per_hour','Per truck hour','/truck hr'],
+ ['flat','Flat per trip','/trip'],
+ ['percent','Percentage of vehicle charges','%']
+];
+function surchargeLabel(type){return SURCHARGE_METHODS.find(r=>r[0]===type)?.[1]||'None';}
+function companySurchargeOptions(c){
+ if(!c)return [];
+ if(Array.isArray(c.surcharge_options)){
+  const found=[];
+  for(const o of c.surcharge_options){
+   if(!o||!SURCHARGE_METHODS.some(m=>m[0]===o.type)||found.some(x=>x.type===o.type))continue;
+   const value=Number(o.rate);if(!Number.isFinite(value)||value<0)continue;
+   found.push({type:o.type,rate:value});
+  }
+  return found;
+ }
+ // Legacy single-method client cards remain editable without data migration.
+ return SURCHARGE_METHODS.some(m=>m[0]===c.surcharge_type)?
+  [{type:c.surcharge_type,rate:number(c.surcharge_rate)}]:[];
+}
+function clientDefaultSurcharge(c){
+ if(!c)return {type:'none',rate:0};
+ const type=c.default_surcharge_type||c.surcharge_type||'none';
+ const found=companySurchargeOptions(c).find(o=>o.type===type);
+ return found||{type:'none',rate:0};
+}
+function surchargeRateDescription(type,rate){
+ const label=type==='percent'?fmtNum(rate)+'%':fmtMoney(rate);
+ const suffix=type==='per_km'?'/actual km':type==='per_hour'?'/truck hr':type==='flat'?'/trip':'';
+ return label+suffix;
+}
+function companySurchargeFields(c){
+ const enabled=companySurchargeOptions(c);
+ const rows=SURCHARGE_METHODS.map(([type,label])=>{
+  const current=enabled.find(o=>o.type===type);
+  return '<div class="surcharge-method-row">'+
+   checked('surcharge_enable_'+type,label,!!current)+
+   field('Rate ('+(type==='percent'?'%':'CAD')+')','surcharge_rate_'+type,current?.rate??0,
+     {type:'number',step:'0.01',min:0})+'</div>';
+ }).join('');
+ const defaultType=clientDefaultSurcharge(c).type;
+ return '<div class="form-divider">Fuel surcharge options for this client</div>'+
+  '<p class="hint">Enable every method the client uses. You can keep different rates for kilometre and hourly locations, then choose the correct one on each work trip.</p>'+
+  '<div class="surcharge-method-grid">'+rows+'</div>'+
+  '<div class="form-grid">'+selectField('Default for new trips','default_surcharge_type',
+    [['none','None — choose for each job'],...SURCHARGE_METHODS.map(m=>[m[0],m[1]])],
+    defaultType,true)+'</div>';
+}
+function surchargeTripChoices(client,selected){
+ const allowed=companySurchargeOptions(client);
+ const opts=[['none','No fuel surcharge']];
+ if(client){
+  for(const o of allowed)opts.push([o.type,surchargeLabel(o.type)+' · '+surchargeRateDescription(o.type,o.rate)]);
+ }else{
+  for(const m of SURCHARGE_METHODS)opts.push([m[0],m[1]+' · set rate below']);
+ }
+ if(selected&&selected!=='none'&&!opts.some(o=>o[0]===selected))
+  opts.push([selected,surchargeLabel(selected)+' · saved trip / custom method']);
+ return opts;
+}
+function renderSurchargeChoices(form,selected,rate){
+ const select=form.elements.surcharge_type;if(!select)return;
+ const options=surchargeTripChoices(getCompany(form.elements.client_id.value),selected);
+ // Replace only the select options, never the form or active odometer input.
+ select.replaceChildren(...options.map(([type,label])=>{
+  const option=document.createElement('option');option.value=type;option.textContent=label;
+  return option;
+ }));
+ select.value=selected||'none';
+ if(rate!==undefined&&form.elements.surcharge_rate)form.elements.surcharge_rate.value=rate;
+ refreshSurchargeHint(form);
+}
+function refreshSurchargeHint(form){
+ const label=form.querySelector('#surcharge-rate-hint');if(!label)return;
+ const type=form.elements.surcharge_type.value;
+ const rate=Number(form.elements.surcharge_rate.value)||0;
+ label.textContent=type==='none'?'No fuel surcharge on this trip':
+  surchargeLabel(type)+' · '+surchargeRateDescription(type,rate)+' charged to the client';
+}
+function selectSurchargeForTrip(form){
+ const selected=form.elements.surcharge_type.value;
+ const client=getCompany(form.elements.client_id.value);
+ const stored=companySurchargeOptions(client).find(o=>o.type===selected);
+ // Choosing a different method pulls its own configured rate.
+ form.elements.surcharge_rate.value=selected==='none'?0:stored?.rate??0;
+ form.elements.bill_surcharge.checked=selected!=='none';
+ refreshSurchargeHint(form);
+ updateTripPreview();
+}
+
+function defaultRate(c){const fuel=clientDefaultSurcharge(c);return {mode:c?.mode||'none',km_rate:number(c?.km_rate),truck_hour_rate:number(c?.truck_hour_rate),surcharge_type:fuel.type,surcharge_rate:fuel.rate};}
 function openCompany(id){const c=state.companies.find(c=>c.id===id)||{id:uid(),name:'',mode:'km',km_rate:0,truck_hour_rate:0,surcharge_type:'none',surcharge_rate:0,notes:'',created_at:new Date().toISOString()};const editing=!!id;
- const html=`<form id="company-form" data-id="${esc(c.id)}"><div class="form-grid">${field('Company / client name','name',c.name,{required:true,full:true,placeholder:'e.g. Acme Construction'})}${selectField('Vehicle billing method','mode',[['km','Kilometres'],['truck_hours','Truck hours'],['both','Km + truck hours'],['none','No vehicle charges']],c.mode,true)}${field('Client charge-out rate per km (CAD)','km_rate',c.km_rate,{type:'number',step:'0.01',min:0})}${field('Client charge-out truck hourly rate (CAD)','truck_hour_rate',c.truck_hour_rate,{type:'number',step:'0.01',min:0})}${selectField('Fuel surcharge method','surcharge_type',[['none','None'],['percent','% of vehicle charges'],['per_km','CAD per actual km'],['per_hour','CAD per truck hour'],['flat','CAD flat per trip']],c.surcharge_type)}${field('Fuel surcharge amount','surcharge_rate',c.surcharge_rate,{type:'number',step:'0.01',min:0})}${textArea('Notes / contract details','notes',c.notes)}</div><div class="notice">These rates are the amounts charged to the client before your share. Truck hours are optional unless you use hourly billing or an hourly fuel surcharge. A surcharge can apply even when kilometres or truck hours aren't separately billed.</div><div class="foot-actions"><button class="btn" type="submit">${editing?'Save changes':'Save client'}</button>${editing?`<button class="btn warn" type="button" data-delete-company="${esc(c.id)}">Delete</button>`:''}</div></form>`;
+ const html=`<form id="company-form" data-id="${esc(c.id)}"><div class="form-grid">${field('Company / client name','name',c.name,{required:true,full:true,placeholder:'e.g. Acme Construction'})}${selectField('Vehicle billing method','mode',[['km','Kilometres'],['truck_hours','Truck hours'],['both','Km + truck hours'],['none','No vehicle charges']],c.mode,true)}${field('Client charge-out rate per km (CAD)','km_rate',c.km_rate,{type:'number',step:'0.01',min:0})}${field('Client charge-out truck hourly rate (CAD)','truck_hour_rate',c.truck_hour_rate,{type:'number',step:'0.01',min:0})}${textArea('Notes / contract details','notes',c.notes)}</div>${companySurchargeFields(c)}<div class="notice">Enter the full client charge-out rates. Every enabled fuel surcharge method keeps its own rate. Choose the appropriate method for each work site; your earnings share is applied when the trip is calculated.</div><div class="foot-actions"><button class="btn" type="submit">${editing?'Save changes':'Save client'}</button>${editing?`<button class="btn warn" type="button" data-delete-company="${esc(c.id)}">Delete</button>`:''}</div></form>`;
  openDialog(editing?'Edit client':'Add client',html);
 }
 function parsePositive(v,label,allowEmpty=false){if(v===''&&allowEmpty)return null;const x=Number(v);if(v===''||!Number.isFinite(x)||x<0)throw new Error(`${label} must be a valid non-negative number`);return x;}
-async function saveCompany(f){const prior=state.companies.find(c=>c.id===f.dataset.id);const record={id:f.dataset.id,name:f.elements.name.value.trim(),mode:f.elements.mode.value,km_rate:parsePositive(f.elements.km_rate.value,'Km rate'),truck_hour_rate:parsePositive(f.elements.truck_hour_rate.value,'Truck hourly rate'),surcharge_type:f.elements.surcharge_type.value,surcharge_rate:parsePositive(f.elements.surcharge_rate.value,'Fuel surcharge'),notes:f.elements.notes.value.trim(),created_at:prior?.created_at||new Date().toISOString(),updated_at:new Date().toISOString()};if(prior&&'labour_hour_rate' in prior)record.labour_hour_rate=prior.labour_hour_rate;if(!record.name)throw new Error('Please enter a company name');await writeWithAudit('companies',record,prior);closeDialog();await refresh();toast('Client saved');}
+async function saveCompany(f){
+ const prior=state.companies.find(c=>c.id===f.dataset.id);
+ const surcharge_options=SURCHARGE_METHODS.filter(([type])=>f.elements['surcharge_enable_'+type].checked)
+  .map(([type,label])=>({type,rate:parsePositive(f.elements['surcharge_rate_'+type].value,label+' surcharge rate')}));
+ const defaultType=f.elements.default_surcharge_type.value;
+ if(defaultType!=='none'&&!surcharge_options.some(x=>x.type===defaultType))
+  throw new Error('Enable the default fuel surcharge method, or choose None as the default.');
+ const preferred=surcharge_options.find(x=>x.type===defaultType);
+ const record={id:f.dataset.id,name:f.elements.name.value.trim(),mode:f.elements.mode.value,
+  km_rate:parsePositive(f.elements.km_rate.value,'Km rate'),
+  truck_hour_rate:parsePositive(f.elements.truck_hour_rate.value,'Truck hourly rate'),
+  surcharge_options,default_surcharge_type:defaultType,
+  // Mirror the default for compatibility with older single-method records.
+  surcharge_type:preferred?.type||'none',surcharge_rate:preferred?.rate||0,
+  notes:f.elements.notes.value.trim(),created_at:prior?.created_at||new Date().toISOString(),
+  updated_at:new Date().toISOString()};if(prior&&'labour_hour_rate' in prior)record.labour_hour_rate=prior.labour_hour_rate;if(!record.name)throw new Error('Please enter a company name');await writeWithAudit('companies',record,prior);closeDialog();await refresh();toast('Client saved');}
 function companyOpts(selected){return [['','Unassigned — set later'],...state.companies.map(c=>[c.id,c.name])];}
 function openTrip(kind,id){const previous=state.trips.find(t=>t.id===id);const t=previous?structuredClone(previous):{id:uid(),kind:kind||'work',date:today(),start_km:'',end_km:null,billed_km:null,client_id:'',client_name:'',destination:'',purpose:'',truck_hours:'',notes:'',rate:defaultRate(null),bill_km:false,bill_truck_hours:false,bill_surcharge:false,share_percent:sharePercent(),created_at:new Date().toISOString()};const work=t.kind==='work',rate=t.rate||defaultRate(getCompany(t.client_id));const edit=!!previous;
  const html=`<form id="trip-form" data-id="${esc(t.id)}" data-kind="${t.kind}"><div class="form-grid">${field('Date','date',t.date,{type:'date',required:true,full:true})}${field('Start odometer (km)','start_km',t.start_km,{type:'number',step:'0.1',min:0,required:true})}${field('End odometer (km)','end_km',t.end_km,{type:'number',step:'0.1',min:0,placeholder:'Enter later'})}<div class="odometer-live full" id="odometer-live" aria-live="off"><span class="odometer-live-icon" aria-hidden="true">↗</span><div class="odometer-live-copy"><span class="odometer-live-label">DISTANCE DRIVEN</span><span class="odometer-live-detail" id="odometer-live-detail">Add an ending odometer reading to calculate the trip.</span></div><strong class="odometer-live-value" id="odometer-live-value">— km</strong></div>${work?`<div class="auto-personal-preview full" id="auto-personal-preview" hidden></div>`:''}${work?`${field('Billed kilometres','billed_km',t.billed_km,{type:'number',step:'0.1',min:0,full:true,placeholder:'Blank = actual kilometres'})}<p class="hint" style="grid-column:1/-1;margin-top:-8px">Optional. Leave blank to bill the actual odometer distance. Enter a different number to track extra billed km.</p>${selectField('Client / company','client_id',companyOpts(),t.client_id,true)}${field('Location / destination','destination',t.destination,{full:true,placeholder:'Job site, town, route'})}${textArea('What were you doing?','purpose',t.purpose)}${field('Truck hours (hourly billing or surcharge)','truck_hours',t.truck_hours===''||t.truck_hours==null?((t.bill_truck_hours||t.rate?.surcharge_type==='per_hour')?t.hours||'':''):t.truck_hours,{type:'number',step:'0.25',min:0,placeholder:'Hours for hourly rates'})}`:`${field('Where did you go?','destination',t.destination,{full:true,placeholder:'e.g. Shopping in Dawson Creek'})}${textArea('Reason / notes','purpose',t.purpose)}`}${textArea('Other notes','notes',t.notes)}</div>
- ${work?`<div class="form-divider">Client billing for this trip</div><div class="hint">An hourly fuel surcharge uses the truck hours entered above, even if truck-hour billing is off.</div><div id="trip-charges">${checked('bill_km','Charge the client for kilometres',t.bill_km)}${checked('bill_truck_hours','Charge for truck hours',t.bill_truck_hours)}${checked('bill_surcharge','Apply fuel surcharge',t.bill_surcharge)}</div>
- <details id="rates-details"><summary class="inline-link">Adjust rates for this trip</summary><p class="hint">These numbers are captured with this entry. Updating the client later will not change them.</p><div class="form-grid">${field('Price per km','km_rate',rate.km_rate,{type:'number',step:'0.01',min:0})}${field('Truck hourly price','truck_hour_rate',rate.truck_hour_rate,{type:'number',step:'0.01',min:0})}${selectField('Fuel surcharge type','surcharge_type',[['none','None'],['percent','% of vehicle charges'],['per_km','CAD per actual km'],['per_hour','CAD per truck hour'],['flat','CAD flat per trip']],rate.surcharge_type)}${field('Fuel surcharge rate','surcharge_rate',rate.surcharge_rate,{type:'number',step:'0.01',min:0})}</div></details>`:''}
+ ${work?`<div class="form-divider">Client billing for this trip</div><div class="hint">An hourly fuel surcharge uses the truck hours entered above, even if truck-hour billing is off.</div><div id="trip-charges">${checked('bill_km','Charge the client for kilometres',t.bill_km)}${checked('bill_truck_hours','Charge for truck hours',t.bill_truck_hours)}${checked('bill_surcharge','Apply fuel surcharge',t.bill_surcharge)}${selectField('Fuel surcharge for this location','surcharge_type',surchargeTripChoices(getCompany(t.client_id),rate.surcharge_type),rate.surcharge_type,true)}<div class="surcharge-rate-hint" id="surcharge-rate-hint" aria-live="polite"></div></div>
+ <details id="rates-details"><summary class="inline-link">Adjust rates for this trip</summary><p class="hint">These numbers are captured with this entry. Updating the client later will not change them.</p><div class="form-grid">${field('Price per km','km_rate',rate.km_rate,{type:'number',step:'0.01',min:0})}${field('Truck hourly price','truck_hour_rate',rate.truck_hour_rate,{type:'number',step:'0.01',min:0})}${field('Selected surcharge rate (client charge-out)','surcharge_rate',rate.surcharge_rate,{type:'number',step:'0.01',min:0})}</div></details>`:''}
  <div class="previewbox" id="trip-preview"></div><div class="foot-actions"><button class="btn" type="submit">${edit?'Save trip':'Add trip'}</button>${edit?`<button class="btn warn" type="button" data-delete-trip="${esc(t.id)}">Delete</button>`:''}</div></form>`;
- openDialog(edit?`Edit ${work?'work':'personal'} trip`:`New ${work?'work':'personal'} trip`,html);const f=$('#trip-form');f.dataset.editing=edit?'1':'0';f.dataset.initialClient=t.client_id||'';f.dataset.sharePercent=String(tripSharePercent(t));updateTripPreview();}
-function applyCompanyToTrip(form){const c=getCompany(form.elements.client_id?.value);const r=defaultRate(c);for(const key of ['km_rate','truck_hour_rate','surcharge_type','surcharge_rate']){if(form.elements[key])form.elements[key].value=r[key];}form.elements.bill_km.checked=['km','both'].includes(r.mode);form.elements.bill_truck_hours.checked=['truck_hours','both'].includes(r.mode);form.elements.bill_surcharge.checked=r.surcharge_type!=='none'&&r.surcharge_rate>0;updateTripPreview();}
+ openDialog(edit?`Edit ${work?'work':'personal'} trip`:`New ${work?'work':'personal'} trip`,html);const f=$('#trip-form');f.dataset.editing=edit?'1':'0';f.dataset.initialClient=t.client_id||'';f.dataset.sharePercent=String(tripSharePercent(t));refreshSurchargeHint(f);updateTripPreview();}
+function applyCompanyToTrip(form){const c=getCompany(form.elements.client_id?.value),r=defaultRate(c);for(const key of ['km_rate','truck_hour_rate'])if(form.elements[key])form.elements[key].value=r[key];renderSurchargeChoices(form,r.surcharge_type,r.surcharge_rate);form.elements.bill_km.checked=['km','both'].includes(r.mode);form.elements.bill_truck_hours.checked=['truck_hours','both'].includes(r.mode);form.elements.bill_surcharge.checked=r.surcharge_type!=='none'&&r.surcharge_rate>0;updateTripPreview();}
 function readTripForm(f){const work=f.dataset.kind==='work';const el=f.elements;const start=el.start_km.value;const end=el.end_km.value;const startNum=start===''?null:Number(start),endNum=end===''?null:Number(end);const r=work?{mode:'custom',km_rate:number(el.km_rate.value),truck_hour_rate:number(el.truck_hour_rate.value),surcharge_type:el.surcharge_type.value,surcharge_rate:number(el.surcharge_rate.value)}:null;return {id:f.dataset.id,kind:f.dataset.kind,date:el.date.value,start_km:startNum,end_km:endNum,billed_km:work?(el.billed_km.value===''?null:Number(el.billed_km.value)):null,client_id:work?el.client_id.value:'',client_name:work?getCompany(el.client_id.value)?.name||'':'',destination:el.destination.value.trim(),purpose:el.purpose.value.trim(),notes:el.notes.value.trim(),truck_hours:work?el.truck_hours.value:'',share_percent:work?Number(f.dataset.sharePercent??DEFAULT_EARNINGS_SHARE):DEFAULT_EARNINGS_SHARE,rate:r,bill_km:work?el.bill_km.checked:false,bill_truck_hours:work?el.bill_truck_hours.checked:false,bill_surcharge:work?el.bill_surcharge.checked:false};}
 function updateTripPreview(){const f=$('#trip-form'),out=$('#trip-preview');if(!f||!out)return;const t=readTripForm(f);
  const personalPanel=$('#auto-personal-preview');
@@ -244,7 +360,7 @@ async function routeClick(e){const btn=e.target.closest('button');if(!btn)return
  if(btn.dataset.export){await exportData(btn.dataset.export);return;}if(btn.id==='restore-btn'){const input=$('#restore-input');try{await restoreBackup(input?.files?.[0]);}catch(err){alert('Restore failed: '+err.message)}return;}if(btn.id==='close-dialog'||btn.id==='close-editor-page'){closeDialog();return;}
  }catch(err){alert(err.message||'Something went wrong');console.error(err);}}
 async function routeSubmit(event){const f=event.target;if(!['company-form','trip-form','expense-form','settings-form'].includes(f.id))return;event.preventDefault();const submit=f.querySelector('[type="submit"]');if(submit)submit.disabled=true;try{if(f.id==='company-form')await saveCompany(f);else if(f.id==='trip-form')await saveTrip(f);else if(f.id==='expense-form')await saveExpense(f);else if(f.id==='settings-form'){const value=parsePositive(f.elements.share_percent.value,'Earnings share');if(value>100)throw new Error('Earnings share cannot be above 100%');const purchase=f.elements.purchase_price.value===''?'':parsePositive(f.elements.purchase_price.value,'Truck purchase price');const old=state.settings.find(x=>x.id==='vehicle_name');await writeWithAudit('settings',{id:'vehicle_name',value:f.elements.vehicle_name.value.trim()},old);const priorPurchase=state.settings.find(x=>x.id==='vehicle_purchase_price');await writeWithAudit('settings',{id:'vehicle_purchase_price',value:purchase},priorPurchase);const oldShare=state.settings.find(x=>x.id==='share_percent');await writeWithAudit('settings',{id:'share_percent',value},oldShare);await refresh();toast('Vehicle settings saved — new trips use your share');}}catch(e){alert(e.message||'Save failed');console.error(e)}finally{if(submit?.isConnected)submit.disabled=false;}}
-function routeInput(e){if(e.target.closest('#trip-form')){const f=$('#trip-form');if(e.target.name==='client_id'){applyCompanyToTrip(f);}else updateTripPreview();}if(e.target.id==='receipt-file'){const file=e.target.files?.[0];$('#receipt-status').textContent=file?`${file.name} (${(file.size/1024/1024).toFixed(2)} MB) ready to save`:'No new receipt selected';}}
+function routeInput(e){if(e.target.closest('#trip-form')){const f=$('#trip-form');if(e.target.name==='client_id'){applyCompanyToTrip(f);}else if(e.target.name==='surcharge_type'){selectSurchargeForTrip(f);}else{if(e.target.name==='surcharge_rate')refreshSurchargeHint(f);updateTripPreview();}}if(e.target.id==='receipt-file'){const file=e.target.files?.[0];$('#receipt-status').textContent=file?`${file.name} (${(file.size/1024/1024).toFixed(2)} MB) ready to save`:'No new receipt selected';}}
 async function init(){document.addEventListener('click',routeClick);document.addEventListener('submit',routeSubmit);document.addEventListener('input',routeInput);document.addEventListener('change',routeInput);$('#editor').addEventListener('click',e=>{if(e.target===$('#editor'))closeDialog();});window.addEventListener('online',render);window.addEventListener('offline',render);
  try{state.db=await openDB();if(typeof AUTO_PERSONAL!=='undefined')await AUTO_PERSONAL.ensure();await refresh();if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Offline install unavailable',err));}
  catch(e){const storageIssue=/indexeddb|storage|database/i.test(String(e?.message||''));$('#content').innerHTML=storageIssue?
