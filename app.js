@@ -206,11 +206,17 @@ function companySurchargeFields(c){
     [['none','None — choose for each job'],...SURCHARGE_METHODS.map(m=>[m[0],m[1]])],
     defaultType,true)+'</div>';
 }
-function surchargeTripChoices(client,selected){
+function surchargeTripChoices(client,selected,savedRate){
  const allowed=companySurchargeOptions(client);
  const opts=[['none','No fuel surcharge']];
  if(client){
-  for(const o of allowed)opts.push([o.type,surchargeLabel(o.type)+' · '+surchargeRateDescription(o.type,o.rate)]);
+  for(const o of allowed){
+   const different=selected===o.type&&savedRate!==undefined&&savedRate!==null&&
+    Number.isFinite(Number(savedRate))&&Math.abs(Number(savedRate)-o.rate)>0.004;
+   const label=surchargeLabel(o.type)+' · '+surchargeRateDescription(o.type,o.rate)+
+    (different?' (trip saved at '+surchargeRateDescription(o.type,Number(savedRate))+')':'');
+   opts.push([o.type,label]);
+  }
  }else{
   for(const m of SURCHARGE_METHODS)opts.push([m[0],m[1]+' · set rate below']);
  }
@@ -220,7 +226,7 @@ function surchargeTripChoices(client,selected){
 }
 function renderSurchargeChoices(form,selected,rate){
  const select=form.elements.surcharge_type;if(!select)return;
- const options=surchargeTripChoices(getCompany(form.elements.client_id.value),selected);
+ const options=surchargeTripChoices(getCompany(form.elements.client_id.value),selected,rate);
  // Replace only the select options, never the form or active odometer input.
  select.replaceChildren(...options.map(([type,label])=>{
   const option=document.createElement('option');option.value=type;option.textContent=label;
@@ -274,7 +280,7 @@ async function saveCompany(f){
 function companyOpts(selected){return [['','Unassigned — set later'],...state.companies.map(c=>[c.id,c.name])];}
 function openTrip(kind,id){const previous=state.trips.find(t=>t.id===id);const t=previous?structuredClone(previous):{id:uid(),kind:kind||'work',date:today(),start_km:'',end_km:null,billed_km:null,client_id:'',client_name:'',destination:'',purpose:'',truck_hours:'',notes:'',rate:defaultRate(null),bill_km:false,bill_truck_hours:false,bill_surcharge:false,share_percent:sharePercent(),created_at:new Date().toISOString()};const work=t.kind==='work',rate=t.rate||defaultRate(getCompany(t.client_id));const edit=!!previous;
  const html=`<form id="trip-form" data-id="${esc(t.id)}" data-kind="${t.kind}"><div class="form-grid">${field('Date','date',t.date,{type:'date',required:true,full:true})}${field('Start odometer (km)','start_km',t.start_km,{type:'number',step:'0.1',min:0,required:true})}${field('End odometer (km)','end_km',t.end_km,{type:'number',step:'0.1',min:0,placeholder:'Enter later'})}<div class="odometer-live full" id="odometer-live" aria-live="off"><span class="odometer-live-icon" aria-hidden="true">↗</span><div class="odometer-live-copy"><span class="odometer-live-label">DISTANCE DRIVEN</span><span class="odometer-live-detail" id="odometer-live-detail">Add an ending odometer reading to calculate the trip.</span></div><strong class="odometer-live-value" id="odometer-live-value">— km</strong></div>${work?`<div class="auto-personal-preview full" id="auto-personal-preview" hidden></div>`:''}${work?`${field('Billed kilometres','billed_km',t.billed_km,{type:'number',step:'0.1',min:0,full:true,placeholder:'Blank = actual kilometres'})}<p class="hint" style="grid-column:1/-1;margin-top:-8px">Optional. Leave blank to bill the actual odometer distance. Enter a different number to track extra billed km.</p>${selectField('Client / company','client_id',companyOpts(),t.client_id,true)}${field('Location / destination','destination',t.destination,{full:true,placeholder:'Job site, town, route'})}${textArea('What were you doing?','purpose',t.purpose)}${field('Truck hours (hourly billing or surcharge)','truck_hours',t.truck_hours===''||t.truck_hours==null?((t.bill_truck_hours||t.rate?.surcharge_type==='per_hour')?t.hours||'':''):t.truck_hours,{type:'number',step:'0.25',min:0,placeholder:'Hours for hourly rates'})}`:`${field('Where did you go?','destination',t.destination,{full:true,placeholder:'e.g. Shopping in Dawson Creek'})}${textArea('Reason / notes','purpose',t.purpose)}`}${textArea('Other notes','notes',t.notes)}</div>
- ${work?`<div class="form-divider">Client billing for this trip</div><div class="hint">An hourly fuel surcharge uses the truck hours entered above, even if truck-hour billing is off.</div><div id="trip-charges">${checked('bill_km','Charge the client for kilometres',t.bill_km)}${checked('bill_truck_hours','Charge for truck hours',t.bill_truck_hours)}${checked('bill_surcharge','Apply fuel surcharge',t.bill_surcharge)}${selectField('Fuel surcharge for this location','surcharge_type',surchargeTripChoices(getCompany(t.client_id),rate.surcharge_type),rate.surcharge_type,true)}<div class="surcharge-rate-hint" id="surcharge-rate-hint" aria-live="polite"></div></div>
+ ${work?`<div class="form-divider">Client billing for this trip</div><div class="hint">An hourly fuel surcharge uses the truck hours entered above, even if truck-hour billing is off.</div><div id="trip-charges">${checked('bill_km','Charge the client for kilometres',t.bill_km)}${checked('bill_truck_hours','Charge for truck hours',t.bill_truck_hours)}${checked('bill_surcharge','Apply fuel surcharge',t.bill_surcharge)}${selectField('Fuel surcharge for this location','surcharge_type',surchargeTripChoices(getCompany(t.client_id),rate.surcharge_type,rate.surcharge_rate),rate.surcharge_type,true)}<div class="surcharge-rate-hint" id="surcharge-rate-hint" aria-live="polite"></div></div>
  <details id="rates-details"><summary class="inline-link">Adjust rates for this trip</summary><p class="hint">These numbers are captured with this entry. Updating the client later will not change them.</p><div class="form-grid">${field('Price per km','km_rate',rate.km_rate,{type:'number',step:'0.01',min:0})}${field('Truck hourly price','truck_hour_rate',rate.truck_hour_rate,{type:'number',step:'0.01',min:0})}${field('Selected surcharge rate (client charge-out)','surcharge_rate',rate.surcharge_rate,{type:'number',step:'0.01',min:0})}</div></details>`:''}
  <div class="previewbox" id="trip-preview"></div><div class="foot-actions"><button class="btn" type="submit">${edit?'Save trip':'Add trip'}</button>${edit?`<button class="btn warn" type="button" data-delete-trip="${esc(t.id)}">Delete</button>`:''}</div></form>`;
  openDialog(edit?`Edit ${work?'work':'personal'} trip`:`New ${work?'work':'personal'} trip`,html);const f=$('#trip-form');f.dataset.editing=edit?'1':'0';f.dataset.initialClient=t.client_id||'';f.dataset.sharePercent=String(tripSharePercent(t));refreshSurchargeHint(f);updateTripPreview();}
