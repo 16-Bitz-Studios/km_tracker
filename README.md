@@ -90,3 +90,9 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The dashboard, client earnings, and trip previews show only the owner's share of truck charges (default **85%**), applied to kilometre charges, billable truck hours, and fuel surcharges.
 - **Data & backup → Your share of client charges** can change this for new trips. Each trip snapshots the percentage; previously saved trips retain 85% unless their own snapshot says otherwise.
 - **Audit export** is now a multi-page, searchable PDF containing work/personal trips, earnings, expenses, clients, receipt references and the local edit history. The backup ZIP remains for original receipt files and full restoration. Receipt binaries are not part of the PDF.
+
+### v0.5 — hourly fuel surcharge
+
+- Fuel surcharge choices now include **CAD per truck hour**, in addition to percentage, CAD per actual km and flat CAD per trip. Select it in a client's rate card or override the fuel surcharge for one trip.
+- Hourly surcharge = entered truck hours × hourly surcharge rate, even when truck-hour base billing is disabled. The user's earnings percentage (85% by default) applies to the entire charge.
+- Client summaries and the audit PDF show the owner's portion of hourly fuel surcharges. Existing trips keep their saved pricing selections.
