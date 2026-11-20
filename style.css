@@ -361,3 +361,60 @@ body.guide-open{overflow:hidden}
  .guide-visual,.guide-copy{animation:none!important}
  .guide-progress-track div,.guide-dots span{transition:none!important}
 }
+
+
+/* v1.7 — everyday polish: touch-friendly search, resume and safe updates. */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+ overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.trip-search{display:flex;align-items:center;gap:9px;padding:2px 9px 2px 13px;margin:1px 0 15px;
+ border:1px solid #365765;border-radius:14px;
+ background:linear-gradient(130deg,#182f3f,#142a39);
+ transition:border-color 150ms ease,box-shadow 150ms ease}
+.trip-search:focus-within{border-color:#65d6bc;box-shadow:0 0 0 3px #62dbbe16}
+.trip-search-icon{font-size:26px;color:#74d8c6;line-height:1;transform:translateY(-1px)}
+.trip-search input{min-width:0;flex:1;min-height:45px;background:transparent;border:0;
+ padding:9px 0;font-size:16px;color:#f2faf7;outline:0;box-shadow:none;-webkit-appearance:none;appearance:none}
+.trip-search input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.trip-search input::placeholder{color:#8cabb9}
+.trip-search button{border:0;background:#244352;color:#d6f4ec;
+ border-radius:9px;font-size:12px;width:33px;height:33px;flex:none}
+.trip-search button[hidden]{display:none!important}
+.trip-search-summary{margin-bottom:10px;min-height:26px}
+.trip-search-row[hidden],#trip-search-none[hidden]{display:none!important}
+.trip-search-row{animation:trip-search-enter 125ms ease-out both}
+@keyframes trip-search-enter{from{opacity:.72}to{opacity:1}}
+.trip-search-row>.listitem{border-radius:10px}
+.search-empty{padding:22px 5px}
+.resume-work-card{display:flex;align-items:center;gap:11px;padding:11px 12px;margin:-5px 0 18px;
+ border-radius:15px;border:1px solid #3d8779;
+ background:linear-gradient(130deg,#174037,#193a44);
+ box-shadow:0 7px 16px #0002}
+.resume-work-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;
+ background:#2b6658;color:#b8ffe7;border-radius:11px;font-size:21px}
+.resume-work-info{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.resume-work-info strong{font-size:12px;font-weight:800;color:#d9fff0}
+.resume-work-info span{font-size:11px;color:#accdc8;line-height:1.4;overflow-wrap:anywhere}
+.resume-work-card .btn{flex:none;min-height:39px;padding:9px 12px}
+#app-update-banner[hidden]{display:none!important}
+#app-update-banner{position:fixed;z-index:13;bottom:calc(85px + env(safe-area-inset-bottom));
+ left:max(12px,calc((100% - 850px)/2));right:max(12px,calc((100% - 850px)/2));
+ display:flex;align-items:center;gap:10px;min-height:61px;
+ padding:11px 12px;background:#183c40;border:1px solid #68baad;border-radius:16px;
+ box-shadow:0 12px 36px #0009,0 0 0 1px #87f2d516;animation:update-banner-appear 180ms ease-out both}
+.app-update-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;
+ background:#347d6a;border-radius:11px;color:#d9fff5;font-size:20px}
+.app-update-message{min-width:0;flex:1;font-size:12px;line-height:1.35;font-weight:690;color:#e7fbf3}
+.app-update-action{flex:none;min-height:40px;padding:8px 12px;border:0;border-radius:10px;
+ background:#86edd2;color:#07392d;font-weight:850;font-size:12px}
+.app-update-close{flex:none;width:28px;height:36px;border:0;background:transparent;color:#b3d5cf;font-size:15px}
+body.standalone-editing #app-update-banner,body.guide-open #app-update-banner{display:none!important}
+@keyframes update-banner-appear{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:355px){
+ #app-update-banner{gap:6px;padding:9px 8px}
+ .app-update-icon{display:none}.app-update-action{padding:8px 10px}
+ .resume-work-card{gap:7px;padding:10px 9px}
+ .resume-work-icon{width:30px;height:30px}
+}
+@media(prefers-reduced-motion:reduce){
+ .trip-search-row,#app-update-banner{animation:none!important}
+}
