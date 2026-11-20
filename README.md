@@ -201,3 +201,11 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Refined page transitions, dashboard card arrivals, bar-chart reveals and animated earnings counters. Transitions use opacity/transform and last a few hundred milliseconds; **Reduce Motion** disables them. No new animation libraries or page-visit delays were introduced.
 - Updated offline shell v24 precaches the new icon, full brand splash, manifest and all versioned frontend assets. No changes were made to database schemas, saved work/personal kilometres, financial calculations, Google Drive backups or the iPhone full-page editor keyboard workaround.
 - iOS can retain its previously installed Home Screen icon in SpringBoard even after webpage asset updates. Do **not** delete a Home Screen installation with local data just to change its icon; export and verify a full ZIP backup first if reinstalling becomes necessary.
+
+### v1.9 — unhurried transitions and instant, longer splash
+
+- The branded splash is styled in critical inline CSS directly in `index.html` and the background art is preloaded. This makes the splash visible on first paint instead of relying on a full stylesheet or late image fetch before it appears.
+- The splash now stays visible for at least **1.45 seconds from splash script startup**, then fades smoothly over **430 ms**. A 3.1-second JavaScript safety exit and a separate CSS safety fade stop a failed startup from trapping the user. The overlay is still pointer-events:none, so it cannot block entry or a recovery action.
+- Page transitions: **440 ms**, dashboard/investment card reveals: **590 ms**, bar-graph growth: **720 ms**, mix bar reveals: **660 ms**, financial counters: **590 ms**. These are CSS or requestAnimationFrame effects; the new page is rendered immediately, with no artificial delay to tapping or typing.
+- The full-page Home Screen editor and native iOS keypad are unchanged. Reduce Motion still disables decorative animations. No changes to IndexedDB, Google Drive backup, receipts, client rates or mileage calculations.
+- Offline cache v25 includes the updated CSS, splash controller and motion module, with coherent versioned HTML script references. No Home Screen uninstall or storage clearing is needed to get the update.
