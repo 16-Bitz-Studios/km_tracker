@@ -178,3 +178,9 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The tutorial covers setting up the truck and 85% owner's share, client and multiple fuel-surcharge methods, starting and finishing a workday, billed vs actual km, automatic personal-km detection, fuel/maintenance receipts, Overview/Invest and net opening YTD, and Google Drive/manual ZIP/PDF backups.
 - The full-screen guide works offline, uses Next, Back, Skip and Done, and honours Reduce Motion. There are no tutorial text fields or native modal dialogs, protecting the installed iPhone app's keyboard workaround.
 - **Data & backup → Getting started → View Tutorial** replays the full guide whenever requested. A small `settings` record `tutorial_first_open_seen` is written on first startup (even if skipped) to avoid repeating the welcome on every launch; it is included in normal backups. This does not change earnings, mileage, receipts, client rates or Google Drive connections.
+
+### v1.6.1 — install from the browser on iOS or Android
+
+- The first-run tutorial now includes **Save TruckLedger to your Home Screen** immediately after the welcome screen. It explains installing from iPhone/iPad **Safari → Share (or Page Menu → Share) → Add to Home Screen → Open as Web App (if offered) → Add**, and Android **Chrome → ⋮ → Install and create shortcut / Install app / Add to Home screen → Install** (labels can vary by browser version).
+- The guide warns against deleting an existing installation that contains unbacked-up records, since an installed Home Screen app can have separate local storage from the browser.
+- This is an instructional step, not an automatic installation button. The guide is now 11 screens and remains first-launch-only on new installations, with a View Tutorial option in Data & backup. It does not alter mileage logs, expenses, clients, receipts, or cloud backups.
