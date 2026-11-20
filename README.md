@@ -80,3 +80,7 @@ The ZIPs intentionally use the standard uncompressed ZIP format (`STORE`) to all
 - `icon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` — app icons
 
 Version: **v0.1.0**. No npm install, build tool, paid service or Mac required to run once hosted.
+
+### v0.3 — vehicle-only tracking
+
+Labour-hour inputs, labour prices, labour billing, and labour dashboard totals were removed. Work trips still support optional billable **truck hours** and company-specific truck-hour prices. Existing legacy labour fields remain in saved records and JSON backups for audit history but are no longer billed, exported as regular CSV columns, or shown in the app. Historical vehicle-hour totals still fall back to old `hours` values if no truck-hours field existed, to avoid silently changing existing mileage/vehicle revenue.
