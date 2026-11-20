@@ -1,6 +1,6 @@
 // Update this cache name whenever frontend assets change.
-const CACHE = 'truckledger-shell-v18';
-const SHELL = ['./', './index.html', './style.css', './style.css?v=18', './app.js', './cloud.js', './audit_pdf.js', './finances.js', './auto_personal.js', './auto_personal.js?v=18', './audit_pdf.js?v=18', './trend.js', './trend.js?v=16', './motion.js', './motion.js?v=17', './app.js?v=18', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'truckledger-shell-v19';
+const SHELL = ['./', './index.html', './style.css', './style.css?v=19', './app.js', './cloud.js', './audit_pdf.js', './finances.js', './auto_personal.js', './auto_personal.js?v=18', './audit_pdf.js?v=19', './trend.js', './trend.js?v=16', './motion.js', './motion.js?v=17', './app.js?v=19', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
 });
