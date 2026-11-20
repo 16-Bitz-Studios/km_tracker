@@ -217,3 +217,10 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Tab navigation is a consistent **680 ms** directional slide. A switch of the reporting range no longer moves the *whole* screen; the overview earnings hero and trend chart provide the deliberate focal motion. Bars grow over **1,050 ms**, earnings counters transition over **780 ms**, and secondary dashboard cards don't all animate independently.
 - No animation libraries, no record schema changes, no changes to earnings, personal kilometres, receipts or Google Drive backup. Reduce Motion continues to turn off nonessential motion.
 - Offline shell v26 precaches versioned app, style and motion modules. Old installed Home Screen data is preserved, and an uninstall is never needed.
+
+### v2.1 — Actual animated video as launch splash
+
+- Uses the user's original animated route-arrow footage, not a replacement image. The cropped, silent H.264 file `splash-logo.mp4` is about 256 KB / 5.3 seconds, with a matching `splash-logo-poster.webp` fallback (about 16 KB).
+- The logo animates in a centered frame with **crisp HTML title and slogan** underneath, rather than showing the low-resolution lettering embedded in the source movie.
+- Video autoplay is muted and inline, including iOS Home Screen. If autoplay is blocked (for example, iOS Low Power Mode), the matching still poster remains. The splash is held for about 3.8 seconds plus a 540ms fade, with a fail-safe timeout. Reduce Motion skips it.
+- Service worker cache v27 precaches the full video and poster, including proper 206 partial-content responses for Safari's Range requests when offline. No user records, billing functions, receipt data, backups, database versions, or iPhone keyboard behavior were changed.
