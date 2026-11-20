@@ -55,7 +55,7 @@ async function makeAuditPDF(){
  const personal=sortDate(state.trips.filter(t=>t.kind==='personal'));
  const expenses=sortDate(state.expenses);
  const changes=state.audit.slice().sort((a,b)=>(a.at||'').localeCompare(b.at||''));
- const earn=round(work.reduce((n,t)=>n+calculate(t).truckRevenue,0));
+ const trackedEarn=round(work.filter(t=>!FINANCES.covered(t)).reduce((n,t)=>n+calculate(t).truckRevenue,0));const opening=FINANCES.periodTotal('all');const earn=round(trackedEarn+opening);const investment=FINANCES.lifetime();
  const costs=round(expenses.reduce((n,e)=>n+number(e.amount),0));
  const fuel=round(expenses.filter(e=>e.category==='Fuel').reduce((n,e)=>n+number(e.amount),0));
  const vehicle=state.settings.find(s=>s.id==='vehicle_name')?.value||'Not specified';
@@ -66,20 +66,36 @@ async function makeAuditPDF(){
  p.section('Summary - your earnings only');
  p.entry('Vehicle earnings and expenses',[
    ['Completed work distance (actual)',dist(workKm)],['Completed personal distance',dist(personalKm)],['Kilometres billed to clients',dist(billedKm)],['Actual km on billed trips',dist(actualKmForBilled)],['Extra billed kilometres',(billedKm-actualKmForBilled>=0?'+':'')+dist(round(billedKm-actualKmForBilled))],
-   ['Your truck earnings',money(earn)],['Fuel costs',money(fuel)],
+   ['Historical opening earnings',money(opening)],['Earnings tracked after opening',money(trackedEarn)],['Your combined truck earnings',money(earn)],['Fuel costs',money(fuel)],
    ['Other vehicle costs',money(round(costs-fuel))],['Total vehicle costs',money(costs)],
-   ['YOUR VEHICLE PROFIT',money(round(earn-costs))]
+   ['OPERATING PROFIT (before purchase)',money(round(earn-costs))],['Original truck purchase price',investment.purchase?money(investment.purchase):'Not entered'],['NET AFTER PURCHASE COST',investment.purchase?money(investment.afterPurchase):'Purchase price not entered'],['Operating profit margin',investment.margin===null?'No earnings':investment.margin.toFixed(1)+'%'],['Return on purchase cost',investment.roi===null?'Purchase price not entered':investment.roi.toFixed(1)+'%']
  ]);
  p.text('Earnings are the vehicle owner share of kilometre charges, truck-hour charges and fuel surcharges. The default share is 85%; each trip retains its own recorded percentage. The employer share is excluded.',{size:8.5});
- p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Vehicle profit = your earnings less all logged costs, including personal-use costs. Values are estimates based on the recorded entries.',{size:8.5});
+ p.text('Opening YTD amounts are earnings totals only and do not add historical mileage. To prevent double counting, trip revenue dated within an opening balance is excluded from combined earnings; those trips remain in the work log below.',{size:8.5});p.text('Billed kilometres may differ from odometer kilometres. If billed distance was left blank, actual distance is used. Fuel surcharges configured per actual kilometre continue using actual distance.',{size:8.5});p.text('Operating profit = your combined earnings minus logged vehicle costs, including personal-use costs. The purchase price is then deducted once for lifetime investment return. Loan principal, remaining vehicle value, taxes, and missing historical expenses are not accounted for.',{size:8.5});
  p.text('Included: '+work.length+' work trips, '+personal.length+' personal trips, '+expenses.length+' expenses, '+state.receipts.length+' receipt references and '+changes.length+' change-history events.',{size:8.5});
+
+ p.section('Opening YTD earnings - summarized prior months');
+ const openingRecords=FINANCES.records();
+ if(!openingRecords.length)p.text('No opening balances recorded.');
+ openingRecords.forEach(r=>{
+   const earned=FINANCES.ownerParts(r);
+   p.entry('Calendar year '+r.year+' | through '+r.through_date,[
+     ['Source of amounts',r.amount_mode==='owner'?'Owner earnings already received':'Client charge-out amounts; owner percentage applied'],
+     ['Owner earnings percentage',r.amount_mode==='owner'?'Not applied again':r.share_percent+'%'],
+     ['Truck kilometre earnings',money(earned.km)],
+     ['Truck-hour earnings',money(earned.hours)],
+     ['Fuel surcharge earnings',money(earned.fuel)],
+     ['OPENING TOTAL EARNED',money(earned.total)],
+     ['Supporting note','Summary amounts are not individual trip or mileage records']
+   ]);
+ });
  p.section('Work trips - complete odometer and earnings log');
  if(!work.length)p.text('No work trips recorded.');
  work.forEach((t,i)=>{const c=calculate(t);p.entry((i+1)+'. '+(t.date||'Undated')+' | '+companyName(t),[
    ['Location',t.destination||'-'],['Work performed',t.purpose||'-'],
    ['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],['Actual distance',dist(c.km)],['Billed kilometres',t.bill_km?(c.billedKm===null?'Pending end odometer':dist(c.billedKm)):'Not billed'],['Difference (billed - actual)',t.bill_km&&c.km!==null?(c.billedKm-c.km>=0?'+':'')+dist(round(c.billedKm-c.km)):'Not applicable'],
    ['Truck hours recorded',t.bill_truck_hours||(t.bill_surcharge&&t.rate?.surcharge_type==='per_hour')?String(t.truck_hours||t.hours||0)+' hr':'Not used for hourly charges'],
-   ['Your earnings percentage',tripSharePercent(t)+'%'],['Your kilometre earnings',money(c.kmCharge)],
+   ['Counting toward total',FINANCES.covered(t)?'Included in opening YTD; not added a second time':'Counted as an individual trip'],['Your earnings percentage',tripSharePercent(t)+'%'],['Your kilometre earnings',money(c.kmCharge)],
    ['Your truck-hour earnings',money(c.truckCharge)],['Your fuel-surcharge earnings',money(c.surcharge)],
    ['YOUR TOTAL EARNINGS',money(c.truckRevenue)],['Notes',t.notes||'-'],['Record ID',t.id]
  ]);});
@@ -129,6 +145,6 @@ async function makeAuditPDF(){
    ]);
  });
  p.section('End of report');
- p.text('This PDF lists every locally recorded work trip, personal trip, expense, client, receipt reference and recorded edit. Use the Full Backup ZIP for original images and exact restorable data.',{size:9});
+ p.text('This PDF lists the available work trips, personal trips, expenses, YTD opening earnings, investment price, client rates, receipts and recorded edits. Historical YTD values are summaries, not itemized trips. Use the Full Backup ZIP for exact records and original receipts.',{size:9});
  return p.build();
 }
