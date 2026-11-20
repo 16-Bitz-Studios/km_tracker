@@ -78,7 +78,7 @@ async function makeAuditPDF(){
  work.forEach((t,i)=>{const c=calculate(t);p.entry((i+1)+'. '+(t.date||'Undated')+' | '+companyName(t),[
    ['Location',t.destination||'-'],['Work performed',t.purpose||'-'],
    ['Starting odometer',dist(t.start_km)],['Ending odometer',dist(t.end_km)],['Distance',dist(c.km)],
-   ['Billable truck hours',t.bill_truck_hours?String(t.truck_hours||t.hours||0)+' hr':'Not charged'],
+   ['Truck hours recorded',t.bill_truck_hours||(t.bill_surcharge&&t.rate?.surcharge_type==='per_hour')?String(t.truck_hours||t.hours||0)+' hr':'Not used for hourly charges'],
    ['Your earnings percentage',tripSharePercent(t)+'%'],['Your kilometre earnings',money(c.kmCharge)],
    ['Your truck-hour earnings',money(c.truckCharge)],['Your fuel-surcharge earnings',money(c.surcharge)],
    ['YOUR TOTAL EARNINGS',money(c.truckRevenue)],['Notes',t.notes||'-'],['Record ID',t.id]
