@@ -60,3 +60,59 @@ body.standalone-editing{background:var(--bg);min-height:100dvh}
 #editor-page-content .form-field input:focus,#editor-page-content .form-field textarea:focus{outline:2px solid #57ddc155;outline-offset:1px}
 #editor-page-content .foot-actions{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
 @media(min-width:700px){#editor-page{padding-left:27px;padding-right:27px}}
+
+
+/* v1.2 — premium-feeling motion without a JavaScript animation framework. */
+.screen-stage{min-width:0;animation:screen-arrive 165ms cubic-bezier(.16,.9,.3,1) both}
+@keyframes screen-arrive{from{opacity:.57;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+.periodbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:4px;border-radius:16px;overflow:hidden}
+.periodbar button{min-width:0;padding:11px 3px;transition:background .16s ease,color .16s ease,box-shadow .16s ease;letter-spacing:-.1px}
+.periodbar button.active{color:#fff;background:linear-gradient(145deg,#306e77,#274e62);box-shadow:inset 0 1px 0 #ffffff21,0 2px 7px #0002}
+.card{transition:border-color .15s ease,box-shadow .15s ease}
+.overview-hero{box-shadow:0 13px 34px #0019234d}
+.btn,.chip,.inline-link,.icon-button,.tabbar button,.trend-toggle button,.trend-point{transition:transform .12s ease,background-color .17s ease,color .16s ease,opacity .15s ease,border-color .16s ease}
+.btn:active,.chip:active,.icon-button:active{transform:scale(.974)}
+.tabbar button:active{transform:scale(.95)}
+.tabbar button.active .nav-ico{transform:translate3d(0,-1px,0) scale(1.08);transition:transform .16s ease}
+.tabbar button.active{box-shadow:inset 0 1px 0 #76d6c91c}
+.trend-card{padding:17px 16px 13px;overflow:hidden}
+.trend-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.trend-head .eyebrow{margin-bottom:4px}
+.trend-head strong{font-size:16px;font-weight:790;letter-spacing:-.25px}
+.trend-toggle{display:flex;gap:2px;padding:3px;border-radius:11px;background:#0c2130;border:1px solid #304c5e}
+.trend-toggle button{background:transparent;border:0;color:var(--muted);padding:8px 10px;border-radius:8px;font-size:11px;font-weight:750;min-height:34px}
+.trend-toggle button.active{background:#284d59;color:#ddfff6;box-shadow:0 2px 6px #0003}
+.trend-subtitle{display:flex;align-items:baseline;justify-content:space-between;gap:9px;color:var(--muted);font-size:12px;margin:17px 1px 9px}
+.trend-subtitle strong{color:#e6f7f4;font-size:17px;font-weight:800;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.trend-bars{display:grid;grid-template-columns:repeat(var(--count),minmax(0,1fr));align-items:end;gap:clamp(4px,1.7vw,12px);height:157px;margin:0 -2px;padding:0 2px}
+.trend-point{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;background:transparent;color:var(--muted);border:0;padding:0;cursor:pointer;height:100%;outline-offset:2px}
+.trend-point-track{display:flex;align-items:flex-end;justify-content:center;width:100%;height:125px;min-width:0;position:relative;padding:0 1px;border-bottom:1px solid #36515b;background:linear-gradient(180deg,#ffffff00,#6ac1b206);border-radius:6px 6px 0 0}
+.trend-point-fill{display:block;width:100%;max-width:48px;height:var(--height);min-height:4px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#8af2de,#329a90);box-shadow:0 -2px 14px #3edcc32c;transform-origin:bottom center;animation:trend-grow 330ms cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--index)*16ms);transition:filter .14s ease}
+.trend-point-fill.empty{opacity:.28;background:#6c8994;box-shadow:none}
+.show-costs .trend-point-fill{background:linear-gradient(180deg,#ffe3ac,#e3a752);box-shadow:0 -2px 12px #e8a95822}
+.trend-point.selected .trend-point-track{background:linear-gradient(180deg,#62888712,#7ee9ce17);box-shadow:inset 0 0 0 1px #82e4d04a}
+.show-costs .trend-point.selected .trend-point-track{background:linear-gradient(180deg,#f5d2a00a,#f3c8811b);box-shadow:inset 0 0 0 1px #e6b77e5a}
+.trend-point.selected .trend-point-fill{filter:brightness(1.09)}
+.trend-point-label{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:clip;max-width:100%;line-height:1;min-height:13px}
+.trend-point.selected .trend-point-label{color:var(--accent);font-weight:800}
+.show-costs .trend-point.selected .trend-point-label{color:var(--gold)}
+.trend-point:focus-visible{outline:2px solid var(--accent);border-radius:4px}
+.trend-selection{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:14px;padding:11px 12px;background:#102a35;border:1px solid #33535d;border-radius:10px;font-size:11px;color:var(--muted);min-height:43px}
+.trend-selection strong{font-size:12px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
+.trend-caveat{margin:9px 0 1px;font-size:11px}
+@keyframes trend-grow{from{transform:scaleY(.04);opacity:.28}to{transform:scaleY(1);opacity:1}}
+.mix-fill,.barfill,.company-bar > div{transform-origin:left center;animation:chart-reveal 310ms cubic-bezier(.22,1,.36,1) both}
+@keyframes chart-reveal{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.overview-mix .mix-row:nth-of-type(2) .mix-fill{animation-delay:38ms}
+.overview-mix .mix-row:nth-of-type(3) .mix-fill{animation-delay:76ms}
+.overview-mix .mix-row:nth-of-type(4) .mix-fill{animation-delay:114ms}
+@media(max-width:385px){
+ .periodbar button{padding:11px 1px;font-size:10px;letter-spacing:-.3px}
+ .trend-card{padding:15px 12px 12px}
+ .trend-point-label{font-size:9px}
+ .trend-bars{gap:4px}
+ .trend-subtitle strong{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
