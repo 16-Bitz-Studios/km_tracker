@@ -572,3 +572,114 @@ dialog[open] .dialog-wrap{animation:sheet-arrive 320ms cubic-bezier(.2,.76,.2,1)
  animation:none!important;transition:none!important
  }
 }
+
+
+/* v2.0 — choreographed motion: the *editor card* glides upward, no cascading gimmicks.
+   Content is inserted instantly and is available throughout the animation. */
+:root{
+ --tl-motion-ease:cubic-bezier(.21,.67,.22,1);
+ --tl-sheet-time:1000ms;
+ --tl-page-time:680ms;
+ --tl-chart-time:1050ms;
+}
+/* iOS Home Screen: keep the normal-flow editor and native keypad.
+   Only the visible card panel is animated; no fixed/translated keyboard container. */
+#editor-page{overflow:visible}
+#editor-page-content{
+ position:relative;
+ background:linear-gradient(160deg,#172e3e 0%,#132738 55%,#102331 100%);
+ border:1px solid #395b68;
+ border-radius:20px;
+ padding:18px 15px 20px;
+ box-shadow:0 16px 42px #020c1750, inset 0 1px 0 #c4fff00a;
+ transform-origin:50% 100%;
+ animation:tl-editor-card-rise var(--tl-sheet-time) var(--tl-motion-ease);
+}
+#editor-page[data-form-kind="trip-form"] #editor-page-content{
+ animation-duration:1100ms;
+}
+#editor-page .editor-page-head{
+ animation:tl-editor-heading 520ms var(--tl-motion-ease) both;
+}
+/* If someone taps an odometer input before the rise ends, stop movement at
+   once so the keyboard appears without a focus or touch-position glitch. */
+#editor-page-content:focus-within{
+ animation:none!important;
+ opacity:1!important;
+ transform:none!important;
+}
+@keyframes tl-editor-card-rise{
+ 0%{opacity:.48;transform:translate3d(0,88px,0) scale(.983)}
+ 38%{opacity:.85;transform:translate3d(0,41px,0) scale(.992)}
+ 75%{opacity:1;transform:translate3d(0,9px,0) scale(.998)}
+ 100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes tl-editor-heading{
+ from{opacity:.40;transform:translate3d(0,14px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* Safari / desktop: move the whole bottom sheet, not multiple nested elements. */
+dialog[open]{
+ animation:tl-dialog-card-rise var(--tl-sheet-time) var(--tl-motion-ease);
+ transform-origin:center bottom;
+}
+dialog[data-form-kind="trip-form"][open]{animation-duration:1100ms}
+dialog[open] .dialog-wrap{animation:none!important}
+@keyframes tl-dialog-card-rise{
+ 0%{opacity:.65;transform:translate3d(0,94px,0) scale(.987)}
+ 40%{opacity:.89;transform:translate3d(0,43px,0) scale(.994)}
+ 78%{opacity:1;transform:translate3d(0,9px,0) scale(.999)}
+ 100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+/* One coherent page movement rather than each child animating at random. */
+.screen-stage{animation:tl-page-enter var(--tl-page-time) var(--tl-motion-ease) both}
+.screen-stage[data-enter="forward"]{--screen-enter-x:25px}
+.screen-stage[data-enter="backward"]{--screen-enter-x:-25px}
+.screen-stage[data-enter="settle"]{--screen-enter-x:0px}
+@keyframes tl-page-enter{
+ from{opacity:.32;transform:translate3d(var(--screen-enter-x,0px),17px,0)}
+ 70%{opacity:.98}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* Switch report periods without making the entire screen move every time. */
+.screen-stage[data-enter="settle"]{animation:none}
+/* The two main dashboard anchors have a measured rise; the rest is steady. */
+.screen-stage[data-view="dashboard"] > .card,
+.screen-stage[data-view="dashboard"] > .grid2,
+.screen-stage[data-view="investment"] > .card{animation:none}
+.screen-stage[data-view="dashboard"] > .overview-hero{
+ animation:tl-hero-arrive 850ms var(--tl-motion-ease) both;
+}
+.screen-stage[data-view="dashboard"] > .trend-card{
+ animation:tl-hero-arrive 950ms var(--tl-motion-ease) 100ms both;
+}
+@keyframes tl-hero-arrive{
+ from{opacity:.55;transform:translate3d(0,23px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+.trend-point-fill{
+ animation:trend-grow var(--tl-chart-time) cubic-bezier(.2,.72,.23,1) both;
+ animation-delay:calc(var(--index)*26ms);
+}
+.mix-fill,.barfill,.company-bar > div{
+ animation:chart-reveal 920ms var(--tl-motion-ease) both;
+}
+.trend-toggle button,.periodbar button{
+ transition:background-color 310ms ease,color 310ms ease,box-shadow 310ms ease,transform 180ms ease;
+}
+.odometer-live.just-ready .odometer-live-value{
+ animation:odometer-settle 460ms var(--tl-motion-ease) both;
+}
+@media(max-width:380px){
+ #editor-page-content{padding:15px 11px 17px;border-radius:17px}
+}
+@media(prefers-reduced-motion:reduce){
+ #editor-page-content,#editor-page .editor-page-head,dialog[open],
+ .screen-stage,.screen-stage[data-view="dashboard"] > .overview-hero,
+ .screen-stage[data-view="dashboard"] > .trend-card,
+ .trend-point-fill,.mix-fill,.barfill,.company-bar > div,
+ .odometer-live.just-ready .odometer-live-value{
+ animation:none!important;transition:none!important;
+ transform:none!important;
+ }
+}
