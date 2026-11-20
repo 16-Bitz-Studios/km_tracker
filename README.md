@@ -129,3 +129,9 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - On iPhones running TruckLedger from the Home Screen, work-trip, personal-trip, client and expense forms now open as normal in-page editors instead of native modal `<dialog>` popups. This avoids a potential iOS standalone web-app keyboard/focus problem. The Safari and desktop versions retain their native dialog layout.
 - Numeric odometer, billed-distance and amount fields continue requesting the iPhone decimal keypad. No data is migrated, deleted or reset by this update.
 - If an installed app has a system-level keyboard issue, opening the site in Safari can help diagnose it. **Do not delete the installed app without exporting its backup first**, because Safari and Home Screen app data may be separate.
+
+### v1.1 — Google Drive connection verification
+
+- Google OAuth account authentication alone is **not** treated as proof that Drive backups are operational. A connection is reported as successful only when listing the account's hidden Drive app-data files succeeds.
+- If the Google Drive API is disabled for Google Cloud project `187913587103`, the app gives an actionable message to enable the API in the correct project. No cloud backup is claimed or uploaded on an API-disabled error.
+- A failed Drive access check rolls back the tentative session token without altering on-device trips, receipts, opening YTD figures, or manual ZIP backups.
