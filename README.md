@@ -148,3 +148,10 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - Fixed the startup regression `Can't find variable: MOTION` by making the optional motion and trend chart modules fail-safe. The app can render records and normal controls even if those optional JavaScript files are temporarily missing or stale.
 - Refresh the application shell to v16, cache-bust the essential updated scripts, and prefer fresh HTML/JS/CSS while online with offline cache fallback. This reduces the chance that Safari or an installed iOS Home Screen app loads a mixture of old and new scripts.
 - The generic startup error screen now distinguishes a real IndexedDB problem from an app-code loading issue and explicitly advises preserving local data; no storage cleanup or migration is involved.
+
+### v1.3 — refined iPhone transitions and odometer entry
+
+- Tab changes use very short directional entry transitions; repeatedly tapping the current tab scrolls to the top without rebuilding it. The bottom navigation has a subtle animated active indicator.
+- iPhone Home Screen trip, client and cost forms still use the full-page editor rather than a modal. Entering start/end odometer values now updates an always-visible trip-distance panel, including a quiet valid/invalid state and a single short animation when an open trip becomes complete.
+- Inputs respond with gentle focus colour/border changes without moving or refocusing the iOS keyboard. Save buttons provide a brief busy indicator while saving; the existing confirmation toast is visually refined. Other screens continue using lightweight transitions, without third-party libraries.
+- All animations honour Reduced Motion, and animation modules remain optional so their absence cannot block the mileage database. No changes were made to the IndexedDB records, financial calculations, cloud backups or receipt data.
