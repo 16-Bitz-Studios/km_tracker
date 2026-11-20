@@ -14,7 +14,10 @@ const MOTION=(()=>{
   }
   if(frame&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(frame);
   frame=0;
-  container.innerHTML='<div class="screen-stage">'+markup+'</div>';
+  const tabs=['dashboard','trips','expenses','companies','investment','data'];
+  const from=tabs.indexOf(previousTab),to=tabs.indexOf(tab);
+  const direction=from<0||to<0||from===to?'settle':to>from?'forward':'backward';
+  container.innerHTML='<div class="screen-stage" data-enter="'+direction+'">'+markup+'</div>';
   previousTab=tab;
   if(reduce()||document.hidden||!window.requestAnimationFrame)return;
   const animations=[];
