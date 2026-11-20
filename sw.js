@@ -1,6 +1,6 @@
 // Update this cache name whenever frontend assets change.
-const CACHE = 'truckledger-shell-v4';
-const SHELL = ['./', './index.html', './style.css', './app.js', './cloud.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'truckledger-shell-v5';
+const SHELL = ['./', './index.html', './style.css', './app.js', './cloud.js', './audit_pdf.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
 });
