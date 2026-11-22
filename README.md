@@ -224,3 +224,18 @@ Labour-hour inputs, labour prices, labour billing, and labour dashboard totals w
 - The logo animates in a centered frame with **crisp HTML title and slogan** underneath, rather than showing the low-resolution lettering embedded in the source movie.
 - Video autoplay is muted and inline, including iOS Home Screen. If autoplay is blocked (for example, iOS Low Power Mode), the matching still poster remains. The splash is held for about 3.8 seconds plus a 540ms fade, with a fail-safe timeout. Reduce Motion skips it.
 - Service worker cache v27 precaches the full video and poster, including proper 206 partial-content responses for Safari's Range requests when offline. No user records, billing functions, receipt data, backups, database versions, or iPhone keyboard behavior were changed.
+
+## Automatic Google Drive backup and guarded multi-device sync
+
+TruckLedger now also includes **Data & backup → Automatic backup & device sync**, in addition to its existing manual cloud ZIP backup/restore buttons. Connecting Google Drive through the existing OAuth flow enables this optional automatic feature. The app uses the same OAuth web-client ID and the same limited `drive.appdata` scope already in use, and stores a distinct `TruckLedger_AutoSync_v1_` series of ZIP backups. It does **not** touch existing `TruckLedger_Backup_` manual cloud backups.
+
+- Local IndexedDB remains authoritative while offline; the backup contains companies, work/personal trips, expenses, settings, audit history, and full binary receipts. Auto-save is debounced after changes and sync checks occur approximately once a minute while the app is open, online, and authorized.
+- Each cloud snapshot is a restorable standard TruckLedger ZIP in the user's hidden Google Drive application-data folder. Revision parent IDs are used to detect conflicting device changes and protect history.
+- First-time connection to an existing cloud history requires explicit choice if the device data differs. Concurrently edited branches pause automatic syncing. The conflict screen offers **Use cloud version** or **Keep this device version**, plus a separate full local ZIP download. These are whole-database choices, not automatic per-record merging.
+- Auto restoration verifies the complete cloud ZIP and every receipt against the stored revision fingerprint, uploads a separate local safety ZIP, and rechecks for concurrent changes before replacing local records. Actual cloud auth and multi-device flows require live user testing.
+- Cloud authorization expires, so **Reconnect Google account** is occasionally required. Background syncing cannot continue when the app is closed or browser authorization has expired.
+- Existing manual **Back up to Google Drive**, **Find my cloud backups**, and **Restore selected cloud backup** workflows remain intact.
+- The local and cloud backups are independent of the public GitHub Pages repository. Never publish user records, receipts, OAuth access tokens, or client secrets.
+- Cloud auto-sync backups are limited to 250 MB per ZIP and are retained as historical revisions. Periodically export a local ZIP even if sync appears healthy. Google storage quotas still apply.
+
+**Start safely:** Export a full ZIP backup on the existing primary device, connect its Google account, confirm an initial cloud backup, and only then connect a second device. Review any first-time sync conflict before choosing the cloud copy. Do not uninstall an app or clear its storage until the records and receipts have been verified on the other device.
