@@ -112,10 +112,12 @@ const TRUCK_SYNC=(()=>{
    const before=await local();if(head&&before!==baseHash)throw Error('Local records changed while syncing. Review the conflict.');
    await upload(before,[],true);
    if(guard!==cycle)return;
+   if(await local()!==before)throw Error('Local records changed before cloud restore. Nothing was replaced.');
+   const current=tips(await list());if(current.length!==1||current[0].id!==remote.id)throw Error('Cloud changed before restore. Review the newer version first.');
    suspend=true;try{const restored=await restoreBackup(zip,{cloudApproved:true,notify:false});if(!restored)throw Error('Cloud restore was cancelled.');head=remote.id;baseHash=await local();persist();conflict=null;dirty=false;mark((automatic?'Updated from another device':'Cloud copy restored')+' · '+now());}finally{suspend=false;}
  }
  async function syncNow(manual=false,safety=false){
-  if(!isReady()||polling||suspend||document.hidden&&!manual||!navigator.onLine)return;
+  if(!isReady()||polling||suspend||conflict&&!manual||document.hidden&&!manual||!navigator.onLine)return;
   const guard=++cycle;polling=true;mark('Checking Google Drive for changes…');
   try{
    const hash=await local();const files=await list();if(guard!==cycle)return;
@@ -154,7 +156,7 @@ const TRUCK_SYNC=(()=>{
      const zip=await download(remote),hash=await local();if(await zipHash(zip)!==remote.appProperties?.hash)throw Error('Cloud backup content failed integrity verification.');await upload(hash,[],true);
      const joined=await uploadCloudCopy(zip,remote.appProperties?.hash,top.map(f=>f.id));
      const updated=tips(await list());if(updated.length!==1||updated[0].id!==joined.id)throw Error('Another device changed the cloud during conflict resolution.');
-     suspend=true;try{await restoreBackup(zip,{cloudApproved:true,notify:false});head=joined.id;baseHash=await local();persist();conflict=null;mark('Cloud version restored; previous copies retained.');}finally{suspend=false;}
+     if(await local()!==hash)throw Error('Local data changed before restoring the cloud copy.');suspend=true;try{await restoreBackup(zip,{cloudApproved:true,notify:false});head=joined.id;baseHash=await local();persist();conflict=null;mark('Cloud version restored; previous copies retained.');}finally{suspend=false;}
    }else await restoreCloud(remote,guard,false);
   }catch(e){mark('Restore stopped: '+e.message)}finally{polling=false;}
  }
