@@ -77,7 +77,7 @@ const TRUCK_SYNC=(()=>{
  function tips(files){const prev=new Set(files.flatMap(parents));return files.filter(f=>!prev.has(f.id));}
  function ancestor(files,earlier,later){if(!earlier)return false;if(earlier===later)return true;const lookup=new Map(files.map(f=>[f.id,f])),visited=new Set(),q=[later];while(q.length){const id=q.shift();if(visited.has(id))continue;visited.add(id);const f=lookup.get(id);if(!f)continue;for(const p of parents(f)){if(p===earlier)return true;q.push(p)}}return false;}
  async function upload(fileHash,parentIds=[],safety=false){
-   const blob=await makeExport('backup');if(blob.size>MAX_BACKUP)throw Error('Backup exceeds the 250 MB Drive sync limit. Export it locally before continuing.');
+   const blob=await makeExport('backup');if(blob.size>MAX_BACKUP)throw Error('Backup exceeds the 250 MB Drive sync limit. Export it locally before continuing.');if(await zipHash(blob)!==fileHash)throw Error('Local records changed during backup creation. Retrying later is safer than uploading an inconsistent snapshot.');
    const name=(safety?SAFETY:PREFIX)+new Date().toISOString().replace(/[:.]/g,'-')+'_'+device+'.zip';
    const meta={name,mimeType:'application/zip',parents:['appDataFolder'],appProperties:{project:'truckledger',hash:fileHash,device,kind:safety?'safety':'sync',...(parentIds.length?{parents:parentIds.join(',')}:{})}};
    const boundary='tl_'+crypto.randomUUID().replaceAll('-','');
@@ -114,7 +114,7 @@ const TRUCK_SYNC=(()=>{
    if(guard!==cycle)return;
    if(await local()!==before)throw Error('Local records changed before cloud restore. Nothing was replaced.');
    const current=tips(await list());if(current.length!==1||current[0].id!==remote.id)throw Error('Cloud changed before restore. Review the newer version first.');
-   suspend=true;try{const restored=await restoreBackup(zip,{cloudApproved:true,notify:false});if(!restored)throw Error('Cloud restore was cancelled.');head=remote.id;baseHash=await local();persist();conflict=null;dirty=false;mark((automatic?'Updated from another device':'Cloud copy restored')+' · '+now());}finally{suspend=false;}
+   suspend=true;try{const restored=await restoreBackup(zip,{cloudApproved:true,notify:false});if(!restored)throw Error('Cloud restore was cancelled.');const restoredHash=await local();if(restoredHash!==remote.appProperties?.hash)throw Error('Restored data differs from the verified backup. Safety ZIP retained in Drive.');head=remote.id;baseHash=restoredHash;persist();conflict=null;dirty=false;mark((automatic?'Updated from another device':'Cloud copy restored')+' · '+now());}finally{suspend=false;}
  }
  async function syncNow(manual=false,safety=false){
   if(!isReady()||polling||suspend||conflict&&!manual||document.hidden&&!manual||!navigator.onLine)return;
@@ -156,7 +156,7 @@ const TRUCK_SYNC=(()=>{
      const zip=await download(remote),hash=await local();if(await zipHash(zip)!==remote.appProperties?.hash)throw Error('Cloud backup content failed integrity verification.');await upload(hash,[],true);
      const joined=await uploadCloudCopy(zip,remote.appProperties?.hash,top.map(f=>f.id));
      const updated=tips(await list());if(updated.length!==1||updated[0].id!==joined.id)throw Error('Another device changed the cloud during conflict resolution.');
-     if(await local()!==hash)throw Error('Local data changed before restoring the cloud copy.');suspend=true;try{await restoreBackup(zip,{cloudApproved:true,notify:false});head=joined.id;baseHash=await local();persist();conflict=null;mark('Cloud version restored; previous copies retained.');}finally{suspend=false;}
+     if(await local()!==hash)throw Error('Local data changed before restoring the cloud copy.');suspend=true;try{await restoreBackup(zip,{cloudApproved:true,notify:false});const restoredHash=await local();if(restoredHash!==remote.appProperties?.hash)throw Error('Restored data differs from the verified backup. Safety ZIP retained in Drive.');head=joined.id;baseHash=restoredHash;persist();conflict=null;mark('Cloud version restored; previous copies retained.');}finally{suspend=false;}
    }else await restoreCloud(remote,guard,false);
   }catch(e){mark('Restore stopped: '+e.message)}finally{polling=false;}
  }
