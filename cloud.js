@@ -37,7 +37,7 @@ const CLOUD=(()=>{
       '<button class="btn secondary block" data-cloud="list" '+(!ready()||busy?'disabled':'')+'>↻ Find my cloud backups</button>'+
       '</div>'+
       (backups.length&&ready()?'<div class="form-field"><label for="cloud-file">Select backup to restore</label><select id="cloud-file">'+backups.map(x=>'<option value="'+html(x.id)+'">'+html(time(x.createdTime||x.modifiedTime)+' · '+(Number(x.size||0)/1024/1024).toFixed(1)+' MB')+'</option>').join('')+'</select></div><button class="btn warn block" data-cloud="restore" '+(busy?'disabled':'')+'>Restore selected cloud backup</button>':'')+
-      '<p class="hint">Backups include your mileage, clients, prices, costs and receipts. They are stored in your Google account’s hidden app-data folder. This is manual backup, not live syncing. Keep a separate downloaded ZIP too.</p></div>';
+      '<p class="hint">Backups include your mileage, clients, prices, costs and receipts. They are stored in your Google account’s hidden app-data folder. These manual backups remain available alongside the separate automatic sync feature below. Keep a downloaded ZIP as an independent backup.</p></div>';
   }
   function update(){if(typeof state!=='undefined'&&state.tab==='data'){const el=document.getElementById('cloud-card');if(el)el.outerHTML=panel();}}
   function setBusy(value){busy=value;update();}
