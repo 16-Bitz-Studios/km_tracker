@@ -92,6 +92,7 @@ const CLOUD=(()=>{
         throw e;
       }
       email=chosen;storeEmail(email);update();
+      if(typeof TRUCK_SYNC!=='undefined')TRUCK_SYNC.connected();
       toast('Google Drive access verified: '+email);
     }catch(e){alert('Google linking: '+e.message);}
     finally{setBusy(false);}
@@ -100,7 +101,7 @@ const CLOUD=(()=>{
     if(busy)return;
     if(!confirm('Unlink '+email+' from this device? Local records stay here, and cloud backups remain in that Google account.'))return;
     if(token&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(token,()=>{});
-    token='';expires=0;email='';backups=[];storeEmail('');update();toast('Google account unlinked from this device');
+    token='';expires=0;email='';backups=[];storeEmail('');if(typeof TRUCK_SYNC!=='undefined')TRUCK_SYNC.unlink();update();toast('Google account unlinked from this device');
   }
   async function listCore(){
     const url='https://www.googleapis.com/drive/v3/files?'+new URLSearchParams({
@@ -167,5 +168,5 @@ const CLOUD=(()=>{
     });
   }
   bind();
-  return {panel};
+  return {panel,ready,request:googleFetch,email:()=>email};
 })();
