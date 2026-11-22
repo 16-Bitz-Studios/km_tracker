@@ -28,7 +28,7 @@ const TRUCK_SYNC=(()=>{
    const store=STORES[i];rows[store]=[];
    for(const record of all[i].sort((a,b)=>String(a.id).localeCompare(String(b.id)))){
     if(store==='receipts'){
-      const bytes=record.blob instanceof Blob?await record.blob.arrayBuffer():new Blob([record.blob||'']).arrayBuffer();
+      const bytes=await (record.blob instanceof Blob?record.blob:new Blob([record.blob||''])).arrayBuffer();
       const blobHash=await digestBytes(bytes);
       const {blob,...rest}=record;rows[store].push({...rest,blobHash});
     }else rows[store].push(record);
@@ -37,6 +37,31 @@ const TRUCK_SYNC=(()=>{
   return digest(JSON.stringify(rows));
  }
  async function digestBytes(bytes){const result=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(result)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+ async function zipHash(zip){
+  // Verify full ZIP contents and receipt integrity before replacing local data.
+  if(zip.size>MAX_BACKUP)throw Error('Cloud ZIP is too large.');
+  const entries=readZip(new Uint8Array(await zip.arrayBuffer())),raw=entries.get('data.json');if(!raw)throw Error('Missing backup data.json');
+  let data;try{data=JSON.parse(new TextDecoder().decode(raw))}catch(e){throw Error('Invalid backup JSON')}
+  if(data?.format!=='truckledger-v1'||![1,2].includes(data.schema_version))throw Error('Incorrect backup format.');
+  for(const k of ['companies','trips','expenses','settings','receipts'])if(!Array.isArray(data[k]))throw Error('Missing backup table '+k);
+  const rows={};
+  for(const store of STORES){
+   if(store==='receipts'){
+    rows[store]=[];
+    for(const r of data.receipts.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)))){
+     if(typeof r.id!=='string'||typeof r.path!=='string'||!r.path.startsWith('receipts/'))throw Error('Invalid receipt metadata.');
+     const bytes=entries.get(r.path);if(!bytes||bytes.length!==r.size)throw Error('Receipt missing or size mismatch.');
+     rows.receipts.push({id:r.id,name:r.name,mime:r.mime,size:r.size,created_at:r.created_at,blobHash:await digestBytes(bytes)});
+    }
+   }else{
+    if(!Array.isArray(data[store]||[])||(data[store]||[]).some(r=>!r||typeof r.id!=='string'))throw Error('Invalid '+store+' backup records.');
+    rows[store]=(data[store]||[]).slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+   }
+  }
+  return digest(JSON.stringify(rows));
+ }
+
  async function drive(url,options={}){if(!isReady())throw Error('Reconnect Google Drive before syncing.');return CLOUD.request(url,options);}
  async function list(){
   const out=[];let cursor='',guard=0;do{
@@ -82,7 +107,7 @@ const TRUCK_SYNC=(()=>{
  }
  async function restoreCloud(remote,guard,automatic=false){
    if(activeDialog())throw Error('Close open editors before applying cloud updates.');
-   const zip=await download(remote);if(guard!==cycle)return;
+   const zip=await download(remote);if(await zipHash(zip)!==remote.appProperties?.hash)throw Error('Cloud backup content failed integrity verification. No local records were changed.');if(guard!==cycle)return;
    // Guard every actual database replacement; retain a separate recovery ZIP.
    const before=await local();if(head&&before!==baseHash)throw Error('Local records changed while syncing. Review the conflict.');
    await upload(before,[],true);
@@ -126,7 +151,7 @@ const TRUCK_SYNC=(()=>{
   polling=true;const guard=++cycle;try{
    const files=await list(),top=tips(files);if(!top.some(f=>f.id===remote.id))throw Error('The active cloud history changed. Sync again first.');
    if(top.length>1){
-     const zip=await download(remote),hash=await local();await upload(hash,[],true);
+     const zip=await download(remote),hash=await local();if(await zipHash(zip)!==remote.appProperties?.hash)throw Error('Cloud backup content failed integrity verification.');await upload(hash,[],true);
      const joined=await uploadCloudCopy(zip,remote.appProperties?.hash,top.map(f=>f.id));
      const updated=tips(await list());if(updated.length!==1||updated[0].id!==joined.id)throw Error('Another device changed the cloud during conflict resolution.');
      suspend=true;try{await restoreBackup(zip,{cloudApproved:true,notify:false});head=joined.id;baseHash=await local();persist();conflict=null;mark('Cloud version restored; previous copies retained.');}finally{suspend=false;}
@@ -150,5 +175,5 @@ const TRUCK_SYNC=(()=>{
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isReady())syncNow(false)});
   interval=setInterval(()=>{if(isReady()&&!document.hidden)syncNow(false)},60000);
  }
- return {init,panel,connected,disconnected,unlink,changed,syncNow,_test:{tips,ancestor}};
+ return {init,panel,connected,disconnected,unlink,changed,syncNow,_test:{tips,ancestor,zipHash}};
 })();
